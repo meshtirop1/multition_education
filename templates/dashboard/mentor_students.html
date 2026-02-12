@@ -1,0 +1,19 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Students — {{ course.title }}{% endblock %}
+{% block dashboard_content %}
+<div class="breadcrumb-custom"><a href="{% url 'dashboard:mentor_course_detail' slug=course.slug %}">{{ course.title }}</a> <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> Students</div>
+<div class="page-header"><h1 class="page-title">Student Analytics</h1><p class="page-subtitle">{{ total_enrolled }} students enrolled in {{ course.title }}</p></div>
+
+<div class="card-custom" style="overflow:hidden">
+<table class="table-custom"><thead><tr><th>Student</th><th>Status</th><th>Progress</th><th>Submissions</th><th>Avg Score</th><th>Approved</th><th>Actions</th></tr></thead><tbody>
+{% for data in students_data %}<tr>
+<td><strong>{{ data.student.get_full_name|default:data.student.username }}</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">{{ data.student.email }}</span></td>
+<td><span class="status-badge status-{{ data.enrollment.status }}">{{ data.enrollment.get_status_display }}</span></td>
+<td><div class="d-flex align-items-center gap-2"><div class="progress-custom" style="width:80px;height:6px"><div class="progress-bar-custom" style="width:{{ data.progress }}%"></div></div><span style="font-size:0.78rem;font-weight:600">{{ data.progress }}%</span></div></td>
+<td>{{ data.completed_submissions }}/{{ data.total_submissions }}</td>
+<td>{% if data.average_score %}<span style="font-weight:600;color:{% if data.average_score >= 70 %}var(--success){% elif data.average_score >= 50 %}var(--accent){% else %}var(--danger){% endif %}">{{ data.average_score }}</span>{% else %}<span style="color:var(--text-muted)">-</span>{% endif %}</td>
+<td>{% if data.enrollment.mentor_approved %}<i class="fas fa-check-circle" style="color:var(--success)"></i>{% else %}<i class="fas fa-clock" style="color:var(--text-muted)"></i>{% endif %}</td>
+<td><a href="{% url 'messaging:compose' %}?to={{ data.student.pk }}" class="btn-outline-accent btn-sm" title="Message"><i class="fas fa-envelope"></i></a></td>
+</tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

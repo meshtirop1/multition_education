@@ -1,0 +1,76 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Student Dashboard{% endblock %}
+{% block dashboard_content %}
+{% if not user.is_approved %}
+<div class="pending-notice">
+    <div class="pending-icon"><i class="fas fa-hourglass-half"></i></div>
+    <h3 style="font-size:1.2rem;margin-bottom:0.5rem">Account Pending Approval</h3>
+    <p style="color:var(--text-secondary);font-size:0.9rem">Your account is waiting for admin approval. You'll be notified once approved and can then enroll in courses.</p>
+</div>
+{% else %}
+<div class="page-header"><h1 class="page-title">My Dashboard</h1><p class="page-subtitle">Track your AI learning progress</p></div>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon blue"><i class="fas fa-book-open"></i></div><div class="stat-card-value">{{ total_enrolled }}</div><div class="stat-card-label">Enrolled</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon purple"><i class="fas fa-spinner"></i></div><div class="stat-card-value">{{ in_progress }}</div><div class="stat-card-label">In Progress</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-card-value">{{ completed }}</div><div class="stat-card-label">Completed</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon gold"><i class="fas fa-certificate"></i></div><div class="stat-card-value">{{ certificates.count }}</div><div class="stat-card-label">Certificates</div></div></div>
+</div>
+
+<h3 style="font-size:1.15rem;margin-bottom:1rem">My Courses</h3>
+{% if enrollments %}
+<div class="row g-3">
+{% for enrollment in enrollments %}
+<div class="col-md-6 col-lg-4">
+    <div class="card-custom" style="padding:1.2rem">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <div class="course-category">{{ enrollment.course.get_category_display }}</div>
+            <span class="status-badge status-{{ enrollment.status }}">{{ enrollment.get_status_display }}</span>
+        </div>
+        <h4 style="font-size:1rem;margin-bottom:0.8rem"><a href="{% url 'courses:detail' slug=enrollment.course.slug %}" style="color:var(--text-primary)">{{ enrollment.course.title }}</a></h4>
+        <div style="margin-bottom:0.8rem"><div class="d-flex justify-content-between mb-1" style="font-size:0.82rem"><span style="color:var(--text-muted)">Progress</span><span style="font-weight:600">{{ enrollment.progress_percentage }}%</span></div><div class="progress-custom"><div class="progress-bar-custom" style="width:{{ enrollment.progress_percentage }}%"></div></div></div>
+        {% if enrollment.mentor_approved %}<div class="alert-custom alert-success" style="font-size:0.8rem;padding:0.5rem 0.8rem;margin-bottom:0.5rem"><i class="fas fa-award"></i> Certificate available!</div>{% endif %}
+        <a href="{% url 'courses:detail' slug=enrollment.course.slug %}" class="btn-outline-accent btn-sm w-100">Continue</a>
+    </div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-book"></i></div><p>You haven't enrolled in any courses yet.</p><a href="{% url 'courses:list' %}" class="btn-accent">Browse Courses</a></div>
+{% endif %}
+
+{% if recent_submissions %}
+<h3 style="font-size:1.15rem;margin:2rem 0 1rem">Recent Activity</h3>
+{% for sub in recent_submissions %}
+<div class="card-custom d-flex align-items-center gap-3" style="padding:0.8rem 1rem;margin-bottom:0.5rem">
+    <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;{% if sub.is_completed and sub.is_correct %}background:rgba(16,185,129,0.12);color:var(--success){% elif sub.is_completed %}background:rgba(59,130,246,0.12);color:#3b82f6{% else %}background:rgba(245,158,11,0.12);color:#f59e0b{% endif %}">
+        {% if sub.is_completed and sub.is_correct %}<i class="fas fa-check"></i>{% elif sub.is_completed %}<i class="fas fa-clipboard-check"></i>{% else %}<i class="fas fa-clock"></i>{% endif %}
+    </div>
+    <div style="flex:1;min-width:0">
+        <div style="font-size:0.88rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ sub.exercise.title }}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted)">{{ sub.exercise.module.course.title }} &bull; {% if sub.score is not None %}{{ sub.score }}/{{ sub.exercise.points }} pts{% else %}Pending{% endif %} &bull; {{ sub.submitted_at|timesince }} ago</div>
+    </div>
+    {% if sub.feedback %}<span class="status-badge status-approved" style="font-size:0.72rem">Graded</span>{% endif %}
+</div>
+{% endfor %}
+{% endif %}
+
+{% if certificates.count > 0 %}
+<h3 style="font-size:1.15rem;margin:2rem 0 1rem">My Certificates</h3>
+{% for cert in certificates %}
+<div class="cert-card mb-2">
+    <div class="cert-icon"><i class="fas fa-award"></i></div>
+    <div style="flex:1"><h5 style="font-size:0.95rem;margin:0">{{ cert.course.title }}</h5><p style="font-size:0.8rem;color:var(--text-muted);margin:0">Issued {{ cert.issued_at|date:"M d, Y" }}</p></div>
+    <a href="{% url 'certificates:download' certificate_id=cert.certificate_id %}" class="btn-accent btn-sm"><i class="fas fa-download"></i> Download</a>
+</div>
+{% endfor %}
+{% endif %}
+
+<!-- Quick Links -->
+<div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)">
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'billing:payment_history' %}" class="btn-outline-accent btn-sm"><i class="fas fa-receipt me-1"></i> Payment History</a>
+        <a href="{% url 'courses:list' %}" class="btn-outline-accent btn-sm"><i class="fas fa-search me-1"></i> Browse Courses</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

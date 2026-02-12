@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Bad Request{% endblock %}
+{% block content %}
+<div class="container" style="max-width:600px;padding:4rem 1rem;text-align:center">
+    <div style="font-size:5rem;font-weight:800;color:var(--accent);opacity:0.3;line-height:1">400</div>
+    <h1 style="font-size:1.5rem;margin:1rem 0 0.5rem">Bad Request</h1>
+    <p style="color:var(--text-muted);margin-bottom:2rem">Something was wrong with that request. Please try again.</p>
+    <a href="/" class="btn-accent"><i class="fas fa-home me-1"></i> Go Home</a>
+</div>
+{% endblock %}

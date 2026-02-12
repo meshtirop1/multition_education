@@ -1,0 +1,31 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Analytics — {{ course.title }}{% endblock %}
+{% block dashboard_content %}
+<div class="breadcrumb-custom"><a href="{% url 'dashboard:mentor_course_detail' slug=course.slug %}">{{ course.title }}</a> <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> Analytics</div>
+<div class="page-header"><h1 class="page-title"><i class="fas fa-chart-bar me-2" style="color:var(--accent)"></i>Course Analytics</h1></div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon blue"><i class="fas fa-users"></i></div><div class="stat-card-value">{{ total_enrolled }}</div><div class="stat-card-label">Enrolled</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon green"><i class="fas fa-spinner"></i></div><div class="stat-card-value">{{ active }}</div><div class="stat-card-label">Active</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon gold"><i class="fas fa-check-circle"></i></div><div class="stat-card-value">{{ completed }}</div><div class="stat-card-label">Completed</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon purple"><i class="fas fa-chart-line"></i></div><div class="stat-card-value">{{ avg_progress }}%</div><div class="stat-card-label">Avg Progress</div></div></div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-4"><div class="stat-card"><div class="stat-card-icon blue"><i class="fas fa-paper-plane"></i></div><div class="stat-card-value">{{ total_submissions }}</div><div class="stat-card-label">Submissions</div></div></div>
+    <div class="col-4"><div class="stat-card"><div class="stat-card-icon green"><i class="fas fa-clipboard-check"></i></div><div class="stat-card-value">{{ graded }}</div><div class="stat-card-label">Graded</div></div></div>
+    <div class="col-4"><div class="stat-card"><div class="stat-card-icon gold"><i class="fas fa-hourglass-half"></i></div><div class="stat-card-value">{{ pending }}</div><div class="stat-card-label">Pending</div></div></div>
+</div>
+
+<h3 style="font-size:1.1rem;margin-bottom:1rem">Module Breakdown</h3>
+<div class="card-custom" style="overflow:hidden">
+<table class="table-custom"><thead><tr><th>Module</th><th>Exercises</th><th>Submissions</th><th>Completed</th><th>Rate</th></tr></thead><tbody>
+{% for ms in module_stats %}<tr>
+<td><strong>{{ ms.module.order }}.</strong> {{ ms.module.title }}</td>
+<td>{{ ms.total_exercises }}</td>
+<td>{{ ms.total_submissions }}</td>
+<td>{{ ms.completed }}</td>
+<td>{% if ms.total_submissions > 0 %}<div class="progress-custom" style="width:80px"><div class="progress-bar-custom" style="width:{% widthratio ms.completed ms.total_submissions 100 %}%"></div></div>{% else %}<span style="color:var(--text-muted)">-</span>{% endif %}</td>
+</tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section class="hero-section">
+    <div class="hero-bg-pattern"></div>
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 hero-content">
+                <div class="hero-badge"><i class="fas fa-robot"></i> AI-Focused Education Platform</div>
+                <h1 class="hero-title">Master <span class="accent">Artificial Intelligence</span> with Expert Mentors</h1>
+                <p class="hero-subtitle">Join MultiTion Education to learn Machine Learning, Deep Learning, NLP, Computer Vision and more through structured, mentor-guided courses with hands-on exercises.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{% url 'courses:list' %}" class="btn-accent btn-lg"><i class="fas fa-rocket"></i> Explore Courses</a>
+                    <a href="{% url 'accounts:register' %}" class="btn-outline-accent btn-lg">Get Started Free</a>
+                </div>
+                <div class="stats-bar">
+                    <div class="stat-item"><div class="stat-number">{{ total_courses|default:"10" }}+</div><div class="stat-label">AI Courses</div></div>
+                    <div class="stat-item"><div class="stat-number">500+</div><div class="stat-label">Students</div></div>
+                    <div class="stat-item"><div class="stat-number">50+</div><div class="stat-label">Certificates</div></div>
+                </div>
+            </div>
+            <div class="col-lg-6 hero-visual d-none d-lg-block">
+                <div class="hero-card-float">
+                    <div style="display:grid;gap:1rem">
+                        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem;background:var(--bg-secondary);border-radius:var(--radius-sm)">
+                            <div style="width:44px;height:44px;border-radius:10px;background:rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center;color:#3b82f6;font-size:1.2rem"><i class="fas fa-brain"></i></div>
+                            <div><div style="font-weight:600;font-size:0.9rem">Machine Learning</div><div style="font-size:0.78rem;color:var(--text-muted)">12 modules • 45 exercises</div></div>
+                            <div class="ms-auto"><span class="status-badge status-approved">Popular</span></div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem;background:var(--bg-secondary);border-radius:var(--radius-sm)">
+                            <div style="width:44px;height:44px;border-radius:10px;background:rgba(200,168,78,0.12);display:flex;align-items:center;justify-content:center;color:#c8a84e;font-size:1.2rem"><i class="fas fa-comments"></i></div>
+                            <div><div style="font-weight:600;font-size:0.9rem">Natural Language Processing</div><div style="font-size:0.78rem;color:var(--text-muted)">8 modules • 32 exercises</div></div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem;background:var(--bg-secondary);border-radius:var(--radius-sm)">
+                            <div style="width:44px;height:44px;border-radius:10px;background:rgba(139,92,246,0.12);display:flex;align-items:center;justify-content:center;color:#8b5cf6;font-size:1.2rem"><i class="fas fa-wand-magic-sparkles"></i></div>
+                            <div><div style="font-weight:600;font-size:0.9rem">Generative AI</div><div style="font-size:0.78rem;color:var(--text-muted)">10 modules • 38 exercises</div></div>
+                            <div class="ms-auto"><span class="status-badge" style="background:rgba(139,92,246,0.12);color:#8b5cf6">New</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if courses %}
+<section class="section" style="background:var(--bg-secondary)">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Featured <span style="color:var(--accent)">AI Courses</span></h2>
+            <p class="section-subtitle">Carefully crafted courses covering the most in-demand AI topics, guided by expert mentors.</p>
+        </div>
+        <div class="row g-4">
+            {% for course in courses %}
+            <div class="col-md-6 col-lg-3">
+                <a href="{% url 'courses:detail' slug=course.slug %}" class="course-card" style="text-decoration:none">
+                    <div class="course-card-img">
+                        {% if course.thumbnail %}<img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">{% else %}<i class="fas fa-microchip"></i>{% endif %}
+                        <span class="course-level-badge level-{{ course.level }}">{{ course.get_level_display }}</span>
+                    </div>
+                    <div class="course-card-body">
+                        <div class="course-category">{{ course.get_category_display }}</div>
+                        <h3 class="course-card-title">{{ course.title }}</h3>
+                        <p class="course-card-desc">{{ course.short_description|default:course.description|truncatewords:20 }}</p>
+                    </div>
+                    <div class="course-card-footer">
+                        <span class="course-card-meta"><i class="fas fa-layer-group"></i> {{ course.total_modules }} modules</span>
+                        <span class="course-card-meta"><i class="fas fa-clock"></i> {{ course.duration_hours }}h</span>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4"><a href="{% url 'courses:list' %}" class="btn-accent"><i class="fas fa-arrow-right"></i> View All Courses</a></div>
+    </div>
+</section>
+{% endif %}
+
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">How It <span style="color:var(--accent)">Works</span></h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card-custom" style="padding:2rem;text-align:center;height:100%">
+                    <div style="width:60px;height:60px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1.2rem"><i class="fas fa-user-plus"></i></div>
+                    <h4 style="font-size:1.15rem;margin-bottom:0.6rem">1. Register & Verify</h4>
+                    <p style="color:var(--text-secondary);font-size:0.88rem">Sign up with email verification, then wait for admin approval to ensure quality learning community.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-custom" style="padding:2rem;text-align:center;height:100%">
+                    <div style="width:60px;height:60px;border-radius:50%;background:rgba(59,130,246,0.1);color:#3b82f6;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1.2rem"><i class="fas fa-book-reader"></i></div>
+                    <h4 style="font-size:1.15rem;margin-bottom:0.6rem">2. Learn & Practice</h4>
+                    <p style="color:var(--text-secondary);font-size:0.88rem">Enroll in AI courses, study modules, and complete exercises with mentor feedback on each submission.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-custom" style="padding:2rem;text-align:center;height:100%">
+                    <div style="width:60px;height:60px;border-radius:50%;background:rgba(16,185,129,0.1);color:#10b981;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1.2rem"><i class="fas fa-award"></i></div>
+                    <h4 style="font-size:1.15rem;margin-bottom:0.6rem">3. Get Certified</h4>
+                    <p style="color:var(--text-secondary);font-size:0.88rem">Complete all exercises and receive mentor approval to earn your verifiable certificate of completion.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

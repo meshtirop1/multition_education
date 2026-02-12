@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Authentication Error{% endblock %}
+{% block hide_footer %}{% endblock %}
+{% block content %}
+<div class="auth-page"><div class="auth-card" style="text-align:center">
+    <div style="width:64px;height:64px;border-radius:50%;background:rgba(239,68,68,0.12);color:var(--danger);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1.2rem"><i class="fas fa-exclamation-circle"></i></div>
+    <h2 style="font-size:1.4rem;margin-bottom:0.5rem">Authentication Error</h2>
+    <p style="color:var(--text-secondary);font-size:0.88rem">An error occurred during social authentication. Please try again.</p>
+    <a href="{% url 'accounts:login' %}" class="btn-accent" style="margin-top:1rem">Back to Login</a>
+</div></div>
+{% endblock %}

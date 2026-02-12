@@ -1,0 +1,29 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}My Threads{% endblock %}
+{% block dashboard_content %}
+<div class="page-header"><h1 class="page-title">My Threads & Bookmarks</h1></div>
+
+<h3 style="font-size:1.1rem;margin-bottom:1rem">My Discussions ({{ user_threads.count }})</h3>
+{% for thread in user_threads %}
+<div class="forum-thread-card">
+    <div class="forum-thread-votes"><span class="forum-vote-count">{{ thread.num_replies }}</span><span class="forum-vote-label">replies</span></div>
+    <div class="forum-thread-body">
+        <div class="forum-thread-title-row">{% if thread.is_solved %}<span class="forum-solved-badge"><i class="fas fa-check-circle"></i></span>{% endif %}<a href="{% url 'forum:thread' slug=thread.slug %}" class="forum-thread-title">{{ thread.title }}</a></div>
+        <div class="forum-thread-meta">in {{ thread.category.name }} &bull; {{ thread.views_count }} views &bull; {{ thread.created_at|timesince }} ago</div>
+    </div>
+</div>
+{% empty %}<div class="empty-state"><p>You haven't created any threads yet.</p><a href="{% url 'forum:create_thread' %}" class="btn-accent">Start a Discussion</a></div>{% endfor %}
+
+{% if bookmarked_threads %}
+<h3 style="font-size:1.1rem;margin:2rem 0 1rem"><i class="fas fa-bookmark me-1" style="color:var(--accent)"></i>Bookmarked ({{ bookmarked_threads.count }})</h3>
+{% for thread in bookmarked_threads %}
+<div class="forum-thread-card">
+    <div class="forum-thread-votes"><span class="forum-vote-count">{{ thread.num_replies }}</span><span class="forum-vote-label">replies</span></div>
+    <div class="forum-thread-body">
+        <div class="forum-thread-title-row"><a href="{% url 'forum:thread' slug=thread.slug %}" class="forum-thread-title">{{ thread.title }}</a></div>
+        <div class="forum-thread-meta">{{ thread.views_count }} views &bull; {{ thread.created_at|timesince }} ago</div>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

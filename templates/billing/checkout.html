@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% block title %}Checkout - {{ course.title }}{% endblock %}
+{% block content %}
+<div class="container" style="max-width:900px;padding:2rem 1rem">
+    <div class="breadcrumb-custom">
+        <a href="{% url 'courses:detail' slug=course.slug %}">{{ course.title }}</a>
+        <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> Checkout
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 350px;gap:2rem;align-items:start">
+        <!-- Payment Methods -->
+        <div>
+            <h2 style="font-size:1.3rem;margin-bottom:1.5rem">Choose Payment Method</h2>
+
+            <!-- Paystack (Card + Mobile Money) -->
+            <div class="card-custom" style="padding:1.5rem;margin-bottom:1rem">
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+                    <div style="width:44px;height:44px;border-radius:10px;background:#00C3F7;color:white;display:flex;align-items:center;justify-content:center;font-size:1.2rem">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div>
+                        <h4 style="font-size:1rem;margin:0">Pay with Card or Mobile Money</h4>
+                        <p style="font-size:0.82rem;color:var(--text-muted);margin:0">Visa, Mastercard, M-Pesa via Paystack</p>
+                    </div>
+                </div>
+                <form method="post" action="{% url 'billing:paystack_pay' slug=course.slug %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-accent w-100" style="background:#00C3F7;border-color:#00C3F7;padding:0.8rem">
+                        <i class="fas fa-lock me-1"></i> Pay KES {{ kes_price|floatformat:0 }} with Paystack
+                    </button>
+                </form>
+                <p style="font-size:0.72rem;color:var(--text-muted);margin-top:0.5rem;text-align:center">
+                    <i class="fas fa-shield-alt me-1"></i> Secured by Paystack. Cards, M-Pesa, and bank transfers accepted.
+                </p>
+            </div>
+
+            <!-- M-Pesa Direct STK Push -->
+            <div class="card-custom" style="padding:1.5rem">
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+                    <div style="width:44px;height:44px;border-radius:10px;background:#4caf50;color:white;display:flex;align-items:center;justify-content:center;font-size:1.2rem">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div>
+                        <h4 style="font-size:1rem;margin:0">Pay with M-Pesa Direct</h4>
+                        <p style="font-size:0.82rem;color:var(--text-muted);margin:0">STK push to your phone</p>
+                    </div>
+                </div>
+                <div id="mpesaForm">
+                    <div style="margin-bottom:1rem">
+                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:0.3rem">Phone Number</label>
+                        <input type="tel" id="mpesaPhone" placeholder="07XX XXX XXX"
+                            style="width:100%;padding:0.7rem 1rem;border:1px solid var(--border);border-radius:8px;font-size:0.95rem;background:var(--bg-secondary);color:var(--text-primary)">
+                    </div>
+                    <button onclick="initiateMpesa()" id="mpesaBtn" class="btn-accent w-100" style="background:#4caf50;border-color:#4caf50;padding:0.8rem">
+                        <i class="fas fa-mobile-alt me-1"></i> Pay KES {{ kes_price|floatformat:0 }} with M-Pesa
+                    </button>
+                </div>
+                <div id="mpesaWaiting" style="display:none;text-align:center;padding:1rem">
+                    <div class="typing-dots" style="font-size:2rem;margin-bottom:1rem"><span>.</span><span>.</span><span>.</span></div>
+                    <h4 style="font-size:1rem">Check your phone</h4>
+                    <p style="font-size:0.85rem;color:var(--text-muted)">Enter your M-Pesa PIN when prompted.</p>
+                    <div id="mpesaStatus" style="margin-top:1rem;font-size:0.85rem;color:var(--accent)">Waiting for payment...</div>
+                </div>
+                <p style="font-size:0.72rem;color:var(--text-muted);margin-top:0.5rem;text-align:center">
+                    <i class="fas fa-shield-alt me-1"></i> STK push sent directly to your Safaricom number.
+                </p>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="card-custom" style="padding:1.5rem;position:sticky;top:80px">
+            <h4 style="font-size:0.95rem;margin-bottom:1rem;color:var(--text-muted)">ORDER SUMMARY</h4>
+            {% if course.thumbnail %}
+            <img src="{{ course.thumbnail.url }}" style="width:100%;border-radius:8px;margin-bottom:1rem" alt="">
+            {% endif %}
+            <h3 style="font-size:1.05rem;margin-bottom:0.3rem">{{ course.title }}</h3>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1rem">
+                {{ course.get_level_display }} &bull; {{ course.duration_hours }} hours &bull; {{ course.total_modules }} modules
+            </p>
+            {% if course.mentor %}
+            <p style="font-size:0.82rem;color:var(--text-muted)">
+                <i class="fas fa-chalkboard-teacher me-1"></i> {{ course.mentor.get_full_name|default:course.mentor.username }}
+            </p>
+            {% endif %}
+            <div style="border-top:2px solid var(--accent);padding-top:0.8rem;margin-top:1rem;display:flex;justify-content:space-between">
+                <span style="font-weight:700">Total</span>
+                <span style="font-weight:700;font-size:1.1rem;color:var(--accent)">KES {{ kes_price|floatformat:0 }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.typing-dots span { animation:blink 1.4s infinite both; }
+.typing-dots span:nth-child(2) { animation-delay:0.2s; }
+.typing-dots span:nth-child(3) { animation-delay:0.4s; }
+@keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
+@media(max-width:768px) { div[style*="grid-template-columns"] { grid-template-columns:1fr !important; } }
+</style>
+
+{% block extra_js %}
+<script>
+const csrfToken = '{{ csrf_token }}';
+let pollInterval = null;
+
+function initiateMpesa() {
+    const phone = document.getElementById('mpesaPhone').value.trim();
+    if (!phone || phone.length < 9) { alert('Enter a valid phone number'); return; }
+
+    const btn = document.getElementById('mpesaBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Sending...';
+
+    const formData = new FormData();
+    formData.append('phone', phone);
+    formData.append('csrfmiddlewaretoken', csrfToken);
+
+    fetch("{% url 'billing:mpesa_pay' slug=course.slug %}", { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            document.getElementById('mpesaForm').style.display = 'none';
+            document.getElementById('mpesaWaiting').style.display = 'block';
+            pollInterval = setInterval(() => {
+                fetch(`/billing/mpesa/status/${data.payment_id}/`)
+                .then(r => r.json())
+                .then(status => {
+                    if (status.completed) {
+                        clearInterval(pollInterval);
+                        document.getElementById('mpesaStatus').innerHTML = '<span style="color:#10b981"><i class="fas fa-check-circle me-1"></i>Payment received!</span>';
+                        setTimeout(() => { window.location.href = '/courses/{{ course.slug }}/'; }, 1500);
+                    } else if (status.status === 'failed') {
+                        clearInterval(pollInterval);
+                        document.getElementById('mpesaStatus').innerHTML = '<span style="color:#ef4444">Payment failed</span>';
+                        setTimeout(() => {
+                            document.getElementById('mpesaForm').style.display = 'block';
+                            document.getElementById('mpesaWaiting').style.display = 'none';
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-mobile-alt me-1"></i> Retry M-Pesa';
+                        }, 2000);
+                    }
+                }).catch(() => {});
+            }, 3000);
+            setTimeout(() => { if (pollInterval) { clearInterval(pollInterval); document.getElementById('mpesaStatus').innerHTML = '<span style="color:#f59e0b">Timeout. Check M-Pesa messages.</span>'; } }, 120000);
+        } else {
+            alert(data.message || 'Failed');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-mobile-alt me-1"></i> Pay KES {{ kes_price|floatformat:0 }} with M-Pesa';
+        }
+    })
+    .catch(() => { alert('Network error'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-mobile-alt me-1"></i> Retry'; });
+}
+</script>
+{% endblock %}
+{% endblock %}

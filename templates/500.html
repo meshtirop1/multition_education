@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Server Error{% endblock %}
+{% block content %}
+<div style="min-height:60vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem">
+    <div>
+        <div style="font-size:6rem;font-weight:800;color:var(--danger);opacity:0.3;line-height:1">500</div>
+        <h2 style="font-size:1.5rem;margin:1rem 0 0.5rem">Something Went Wrong</h2>
+        <p style="color:var(--text-secondary);margin-bottom:1.5rem">We encountered an unexpected error. Please try again later.</p>
+        <a href="/" class="btn-accent">Go Home</a>
+    </div>
+</div>
+{% endblock %}

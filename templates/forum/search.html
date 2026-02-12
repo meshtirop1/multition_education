@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Search Forum{% endblock %}
+{% block content %}
+<section class="section" style="padding-top:1.5rem">
+<div class="container">
+    <div class="breadcrumb-custom"><a href="{% url 'forum:home' %}">Forum</a> <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> Search</div>
+    <h1 class="page-title" style="margin-bottom:1rem">Search Results{% if query %} for "{{ query }}"{% endif %}</h1>
+    <form action="{% url 'forum:search' %}" class="mb-3"><div class="d-flex gap-2" style="max-width:500px"><input type="text" name="q" class="form-control" value="{{ query }}" placeholder="Search discussions..."><button class="btn-accent"><i class="fas fa-search"></i></button></div></form>
+    {% for thread in threads %}
+    <div class="forum-thread-card">
+        <div class="forum-thread-votes"><span class="forum-vote-count">{{ thread.num_replies }}</span><span class="forum-vote-label">replies</span></div>
+        <div class="forum-thread-body">
+            <div class="forum-thread-title-row">{% if thread.is_solved %}<span class="forum-solved-badge"><i class="fas fa-check-circle"></i></span>{% endif %}<a href="{% url 'forum:thread' slug=thread.slug %}" class="forum-thread-title">{{ thread.title }}</a></div>
+            <div class="forum-thread-meta"><span>in <strong>{{ thread.category.name }}</strong></span> &bull; by {{ thread.author.get_full_name|default:thread.author.username }} &bull; {{ thread.created_at|timesince }} ago</div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state"><div class="empty-state-icon"><i class="fas fa-search"></i></div><p>{% if query %}No results found for "{{ query }}".{% else %}Enter a search term to find discussions.{% endif %}</p></div>
+    {% endfor %}
+</div>
+</section>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Verify Certificate{% endblock %}
+{% block content %}
+<div class="container" style="max-width:600px;padding:4rem 1rem;text-align:center">
+{% if valid %}
+<div style="width:80px;height:80px;border-radius:50%;background:rgba(16,185,129,0.12);color:var(--success);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 1.5rem"><i class="fas fa-check-circle"></i></div>
+<h2 style="color:var(--success);margin-bottom:1rem">Certificate Verified</h2>
+<div class="card-custom" style="padding:1.5rem;text-align:left">
+    <p><strong>Student:</strong> {{ certificate.student.get_full_name|default:certificate.student.username }}</p>
+    <p><strong>Course:</strong> {{ certificate.course.title }}</p>
+    <p><strong>Issued:</strong> {{ certificate.issued_at|date:"F d, Y" }}</p>
+    <p><strong>Approved by:</strong> {{ certificate.approved_by.get_full_name|default:"Mentor" }}</p>
+    <p><strong>Certificate ID:</strong> {{ certificate.certificate_id }}</p>
+</div>
+{% else %}
+<div style="width:80px;height:80px;border-radius:50%;background:rgba(239,68,68,0.12);color:var(--danger);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 1.5rem"><i class="fas fa-times-circle"></i></div>
+<h2 style="color:var(--danger)">Certificate Not Found</h2>
+<p style="color:var(--text-secondary)">This certificate ID could not be verified.</p>
+{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}{{ category.name }} — Forum{% endblock %}
+{% block content %}
+<section class="forum-hero">
+    <div class="container">
+        <div class="breadcrumb-custom" style="margin-bottom:0.5rem"><a href="{% url 'forum:home' %}">Forum</a> <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> {{ category.name }}</div>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div><h1 class="page-title" style="margin-bottom:0.2rem"><i class="{{ category.icon }} me-2" style="color:{{ category.color }}"></i>{{ category.name }}</h1><p style="color:var(--text-secondary);margin:0">{{ category.description }}</p></div>
+            {% if user.is_authenticated %}<a href="{% url 'forum:create_thread' %}?category={{ category.slug }}" class="btn-accent"><i class="fas fa-plus me-1"></i> New Thread</a>{% endif %}
+        </div>
+    </div>
+</section>
+<section class="section" style="padding-top:1rem">
+<div class="container">
+    <div class="d-flex gap-2 mb-3">
+        <a href="?sort=latest" class="filter-chip {% if current_sort == 'latest' %}active{% endif %}">Latest</a>
+        <a href="?sort=popular" class="filter-chip {% if current_sort == 'popular' %}active{% endif %}">Popular</a>
+        <a href="?sort=unanswered" class="filter-chip {% if current_sort == 'unanswered' %}active{% endif %}">Unanswered</a>
+        <a href="?sort=solved" class="filter-chip {% if current_sort == 'solved' %}active{% endif %}">Solved</a>
+    </div>
+    {% for thread in threads %}
+    <div class="forum-thread-card {% if thread.is_pinned %}pinned{% endif %}">
+        <div class="forum-thread-votes">
+            <span class="forum-vote-count">{{ thread.num_replies }}</span>
+            <span class="forum-vote-label">replies</span>
+        </div>
+        <div class="forum-thread-body">
+            <div class="forum-thread-title-row">
+                {% if thread.is_pinned %}<span class="forum-pin-badge"><i class="fas fa-thumbtack"></i></span>{% endif %}
+                {% if thread.is_solved %}<span class="forum-solved-badge"><i class="fas fa-check-circle"></i> Solved</span>{% endif %}
+                {% if thread.is_locked %}<span style="color:var(--text-muted);font-size:0.78rem"><i class="fas fa-lock"></i></span>{% endif %}
+                <a href="{% url 'forum:thread' slug=thread.slug %}" class="forum-thread-title">{{ thread.title }}</a>
+            </div>
+            <div class="forum-thread-meta">
+                <span>by <strong>{{ thread.author.get_full_name|default:thread.author.username }}</strong></span>
+                {% if thread.author.role == 'mentor' %}<span class="forum-author-badge mentor">Mentor</span>{% elif thread.author.role == 'admin' %}<span class="forum-author-badge admin">Admin</span>{% endif %}
+                <span>&bull; {{ thread.created_at|timesince }} ago</span>
+                <span>&bull; <i class="fas fa-eye"></i> {{ thread.views_count }}</span>
+            </div>
+            {% if thread.tag_list %}<div class="forum-tags">{% for tag in thread.tag_list %}<span class="forum-tag">{{ tag }}</span>{% endfor %}</div>{% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state"><div class="empty-state-icon"><i class="fas fa-comments"></i></div><p>No threads in this category yet.</p>{% if user.is_authenticated %}<a href="{% url 'forum:create_thread' %}?category={{ category.slug }}" class="btn-accent">Start the First Discussion</a>{% endif %}</div>
+    {% endfor %}
+</div>
+</section>
+{% endblock %}

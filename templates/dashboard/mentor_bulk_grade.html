@@ -1,0 +1,28 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Bulk Grade — {{ course.title }}{% endblock %}
+{% block dashboard_content %}
+<div class="breadcrumb-custom"><a href="{% url 'dashboard:mentor_course_detail' slug=course.slug %}">{{ course.title }}</a> <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> Bulk Grade</div>
+<div class="page-header"><h1 class="page-title"><i class="fas fa-clipboard-check me-2" style="color:var(--accent)"></i>Bulk Grading</h1><p class="page-subtitle">Grade multiple submissions at once</p></div>
+
+{% if pending %}
+<form method="post">{% csrf_token %}
+{% for sub in pending %}
+<div class="card-custom" style="padding:1.2rem;margin-bottom:0.8rem">
+    <div class="d-flex justify-content-between align-items-start mb-2">
+        <div><strong style="font-size:0.95rem">{{ sub.student.get_full_name|default:sub.student.username }}</strong> — {{ sub.exercise.title }}<br><span style="font-size:0.78rem;color:var(--text-muted)">{{ sub.exercise.module.title }} &bull; {{ sub.exercise.get_exercise_type_display }} &bull; Max {{ sub.exercise.points }} pts</span></div>
+    </div>
+    <div style="background:var(--bg-secondary);padding:0.8rem;border-radius:var(--radius-sm);margin-bottom:0.8rem;font-size:0.88rem;max-height:120px;overflow-y:auto">{{ sub.answer|default:"(File upload only)"|truncatewords:60 }}</div>
+    {% if sub.file_upload %}<div style="margin-bottom:0.5rem"><a href="{{ sub.file_upload.url }}" target="_blank" class="btn-outline-accent btn-sm" style="font-size:0.78rem"><i class="fas fa-download"></i> File</a></div>{% endif %}
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <input type="number" name="score_{{ sub.id }}" class="form-control" style="width:80px" placeholder="Score" min="0" max="{{ sub.exercise.points }}">
+        <input type="text" name="feedback_{{ sub.id }}" class="form-control" style="flex:1;min-width:200px" placeholder="Feedback (optional)">
+        <label class="form-check-label d-flex align-items-center gap-1" style="font-size:0.82rem"><input type="checkbox" name="complete_{{ sub.id }}" class="form-check-input" checked> Complete</label>
+    </div>
+</div>
+{% endfor %}
+<div class="d-flex gap-2 mt-3"><button type="submit" class="btn-accent btn-lg"><i class="fas fa-check-circle me-1"></i> Submit All Grades ({{ pending.count }})</button><a href="{% url 'dashboard:mentor_course_detail' slug=course.slug %}" class="btn-outline-accent">Cancel</a></div>
+</form>
+{% else %}
+<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-check-circle"></i></div><p>No pending submissions to grade!</p></div>
+{% endif %}
+{% endblock %}

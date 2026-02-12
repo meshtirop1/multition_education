@@ -1,0 +1,9 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Manage Mentors{% endblock %}
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-3"><div class="page-header" style="margin:0"><h1 class="page-title">Mentors</h1></div><a href="{% url 'dashboard:admin_create_mentor' %}" class="btn-accent"><i class="fas fa-user-plus"></i> Create Mentor</a></div>
+<div class="card-custom" style="overflow:hidden">
+<table class="table-custom"><thead><tr><th>Name</th><th>Email</th><th>Courses</th><th>Joined</th></tr></thead><tbody>
+{% for m in mentors %}<tr><td>{{ m.get_full_name|default:m.username }}</td><td>{{ m.email }}</td><td>{{ m.mentored_courses.count }}</td><td>{{ m.date_joined|date:"M d, Y" }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

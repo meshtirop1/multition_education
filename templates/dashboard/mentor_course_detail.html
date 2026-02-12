@@ -1,0 +1,34 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}{{ course.title }} - Mentor{% endblock %}
+{% block dashboard_content %}
+<div class="breadcrumb-custom"><a href="{% url 'dashboard:mentor_dashboard' %}">Dashboard</a> <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> {{ course.title }}</div>
+<div class="page-header"><h1 class="page-title">{{ course.title }}</h1></div>
+
+<div class="d-flex flex-wrap gap-2 mb-4">
+    <a href="{% url 'dashboard:mentor_students' slug=course.slug %}" class="btn-outline-accent"><i class="fas fa-users me-1"></i> Students ({{ enrollments.count }})</a>
+    <a href="{% url 'dashboard:mentor_bulk_grade' slug=course.slug %}" class="btn-outline-accent"><i class="fas fa-clipboard-check me-1"></i> Bulk Grade{% if submissions %} ({{ submissions.count }}){% endif %}</a>
+    <a href="{% url 'dashboard:mentor_announcements' slug=course.slug %}" class="btn-outline-accent"><i class="fas fa-bullhorn me-1"></i> Announce</a>
+    <a href="{% url 'dashboard:mentor_course_analytics' slug=course.slug %}" class="btn-outline-accent"><i class="fas fa-chart-bar me-1"></i> Analytics</a>
+    <a href="{% url 'forum:home' %}" class="btn-outline-accent"><i class="fas fa-comments me-1"></i> Forum</a>
+</div>
+
+{% if submissions %}
+<h3 style="font-size:1.1rem;margin-bottom:1rem">Pending Submissions</h3>
+<div class="card-custom" style="overflow:hidden;margin-bottom:2rem">
+<table class="table-custom"><thead><tr><th>Student</th><th>Exercise</th><th>Module</th><th>Submitted</th><th>Action</th></tr></thead><tbody>
+{% for sub in submissions %}<tr><td>{{ sub.student.get_full_name|default:sub.student.username }}</td><td>{{ sub.exercise.title }}</td><td>{{ sub.exercise.module.title }}</td><td>{{ sub.submitted_at|date:"M d" }}</td><td><a href="{% url 'dashboard:grade_submission' submission_id=sub.id %}" class="btn-outline-accent btn-sm">Grade</a></td></tr>{% endfor %}
+</tbody></table></div>
+{% endif %}
+
+<h3 style="font-size:1.1rem;margin-bottom:1rem">Enrolled Students ({{ enrollments.count }})</h3>
+<div class="card-custom" style="overflow:hidden">
+<table class="table-custom"><thead><tr><th>Student</th><th>Status</th><th>Progress</th><th>Approved</th><th>Actions</th></tr></thead><tbody>
+{% for e in enrollments %}<tr>
+<td><a href="{% url 'messaging:compose' %}?to={{ e.student.pk }}" style="color:var(--text-primary)" title="Message student">{{ e.student.get_full_name|default:e.student.username }} <i class="fas fa-envelope" style="font-size:0.7rem;color:var(--text-muted)"></i></a></td>
+<td><span class="status-badge status-{{ e.status }}">{{ e.get_status_display }}</span></td>
+<td><div class="progress-custom" style="width:120px"><div class="progress-bar-custom" style="width:{{ e.progress_percentage }}%"></div></div><span style="font-size:0.78rem">{{ e.progress_percentage }}%</span></td>
+<td>{% if e.mentor_approved %}<i class="fas fa-check-circle" style="color:var(--success)"></i>{% else %}<i class="fas fa-clock" style="color:var(--text-muted)"></i>{% endif %}</td>
+<td>{% if e.all_exercises_completed and not e.mentor_approved %}<form method="post" action="{% url 'dashboard:approve_completion' enrollment_id=e.id %}" style="display:inline">{% csrf_token %}<button type="submit" class="btn-accent btn-sm"><i class="fas fa-award me-1"></i>Approve & Certify</button></form>{% endif %}</td>
+</tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

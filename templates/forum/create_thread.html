@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}New Discussion{% endblock %}
+{% block content %}
+<section class="section" style="padding-top:1.5rem">
+<div class="container" style="max-width:800px">
+    <div class="breadcrumb-custom"><a href="{% url 'forum:home' %}">Forum</a> <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> New Discussion</div>
+    <div class="card-custom" style="padding:2rem">
+        <h2 style="font-size:1.3rem;margin-bottom:1.2rem"><i class="fas fa-plus-circle me-2" style="color:var(--accent)"></i>Start a New Discussion</h2>
+        <form method="post">{% csrf_token %}
+            <div class="mb-3"><label class="form-label">Title</label>{{ form.title }}{% if form.title.errors %}<div style="color:var(--danger);font-size:0.8rem">{{ form.title.errors.0 }}</div>{% endif %}</div>
+            <div class="mb-3"><label class="form-label">Category</label>{{ form.category }}{% if form.category.errors %}<div style="color:var(--danger);font-size:0.8rem">{{ form.category.errors.0 }}</div>{% endif %}</div>
+            <div class="mb-3"><label class="form-label">Content</label>{{ form.content }}<div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.3rem">Be specific and provide enough detail for others to help or discuss.</div>{% if form.content.errors %}<div style="color:var(--danger);font-size:0.8rem">{{ form.content.errors.0 }}</div>{% endif %}</div>
+            <div class="mb-3"><label class="form-label">Tags</label>{{ form.tags }}<div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.3rem">Separate with commas (e.g., python, pytorch, cnn)</div></div>
+            <div class="d-flex gap-2"><button type="submit" class="btn-accent"><i class="fas fa-paper-plane me-1"></i> Post Discussion</button><a href="{% url 'forum:home' %}" class="btn-outline-accent">Cancel</a></div>
+        </form>
+    </div>
+</div>
+</section>
+{% endblock %}

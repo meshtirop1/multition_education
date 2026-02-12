@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}{{ exercise.title }}{% endblock %}
+{% block hide_footer %}{% endblock %}
+{% block content %}
+<div class="container" style="max-width:800px;padding:2rem 1rem">
+    <div class="breadcrumb-custom"><a href="{% url 'courses:module_detail' slug=course.slug module_id=module.id %}">{{ module.title }}</a> <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> {{ exercise.title }}</div>
+    <div class="card-custom" style="padding:2rem">
+        <h2 style="font-size:1.3rem">{{ exercise.title }}</h2>
+        <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem">
+            <span style="font-size:0.82rem;color:var(--text-muted)">{{ exercise.get_exercise_type_display }} &bull; {{ exercise.points }} points</span>
+            {% if max_attempts %}
+            <span style="font-size:0.78rem;padding:3px 10px;border-radius:10px;{% if attempts_remaining <= 1 %}background:#fef2f2;color:#991b1b{% else %}background:var(--bg-tertiary);color:var(--text-muted){% endif %}">
+                <i class="fas fa-redo me-1"></i>Attempt {{ attempts_used|add:"1" }} of {{ max_attempts }}
+                {% if attempts_remaining == 1 %} — <strong>Last chance!</strong>{% endif %}
+            </span>
+            {% elif attempts_used > 0 %}
+            <span style="font-size:0.78rem;padding:3px 10px;border-radius:10px;background:var(--bg-tertiary);color:var(--text-muted)">
+                <i class="fas fa-redo me-1"></i>Attempt {{ attempts_used|add:"1" }}
+            </span>
+            {% endif %}
+        </div>
+
+        {% if attempts_used > 0 and attempts_remaining is not None and attempts_remaining <= 2 %}
+        <div style="padding:0.7rem 1rem;background:#fef3c7;border-radius:8px;margin-bottom:1.2rem;font-size:0.85rem;color:#92400e">
+            <i class="fas fa-exclamation-triangle me-1"></i>
+            {% if attempts_remaining == 1 %}
+                <strong>This is your last attempt.</strong> Read the question carefully before submitting.
+            {% else %}
+                You have <strong>{{ attempts_remaining }} attempts</strong> remaining. Take your time and review the module content if needed.
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div style="color:var(--text-secondary);margin:1.2rem 0;line-height:1.8">{{ exercise.description|safe }}</div>
+        <form method="post" enctype="multipart/form-data">{% csrf_token %}
+            {% if exercise.exercise_type == 'quiz' %}
+            <input type="hidden" name="selected_option" id="selectedOption" value="">
+            <div class="quiz-options">
+                {% if exercise.option_a %}<div class="quiz-option" data-option="A" onclick="selectQuiz(this)"><span class="quiz-option-letter">A</span> {{ exercise.option_a }}</div>{% endif %}
+                {% if exercise.option_b %}<div class="quiz-option" data-option="B" onclick="selectQuiz(this)"><span class="quiz-option-letter">B</span> {{ exercise.option_b }}</div>{% endif %}
+                {% if exercise.option_c %}<div class="quiz-option" data-option="C" onclick="selectQuiz(this)"><span class="quiz-option-letter">C</span> {{ exercise.option_c }}</div>{% endif %}
+                {% if exercise.option_d %}<div class="quiz-option" data-option="D" onclick="selectQuiz(this)"><span class="quiz-option-letter">D</span> {{ exercise.option_d }}</div>{% endif %}
+            </div>
+            {% elif exercise.exercise_type == 'file' %}
+            <div class="mb-3"><label class="form-label">Upload File</label>{{ form.file_upload }}</div>
+            <div class="mb-3"><label class="form-label">Notes (optional)</label>{{ form.answer }}</div>
+            {% else %}
+            <div class="mb-3"><label class="form-label">Your Answer</label>{{ form.answer }}</div>
+            {% endif %}
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn-accent">
+                    {% if attempts_used > 0 %}<i class="fas fa-redo me-1"></i>Submit Retry{% else %}Submit{% endif %}
+                </button>
+                <a href="{% url 'courses:module_detail' slug=course.slug module_id=module.id %}" class="btn-outline-accent">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% block extra_js %}<script>function selectQuiz(el){document.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');document.getElementById('selectedOption').value=el.dataset.option;}</script>{% endblock %}
+{% endblock %}

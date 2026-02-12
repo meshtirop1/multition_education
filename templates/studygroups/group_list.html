@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Study Groups - {{ course.title }}{% endblock %}
+{% block content %}
+<div class="container" style="max-width:800px;padding:2rem 1rem">
+    <div class="breadcrumb-custom">
+        <a href="{% url 'courses:detail' slug=course.slug %}">{{ course.title }}</a>
+        <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> Study Groups
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 style="font-size:1.3rem;margin:0">Study Groups</h2>
+        <button onclick="document.getElementById('createModal').style.display='flex'" class="btn-accent btn-sm"><i class="fas fa-plus me-1"></i> New Group</button>
+    </div>
+
+    {% for group in groups %}
+    <div class="card-custom" style="padding:1.2rem;margin-bottom:0.8rem">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h5 style="font-size:1rem;margin-bottom:0.3rem">{{ group.name }}</h5>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin:0">
+                    {{ group.member_count }}/{{ group.max_members }} members
+                    &bull; Created by {{ group.created_by.get_full_name|default:group.created_by.username }}
+                    {% if group.description %}&bull; {{ group.description|truncatewords:15 }}{% endif %}
+                </p>
+            </div>
+            {% if group.id in my_groups %}
+                <a href="{% url 'studygroups:chat' slug=course.slug group_id=group.pk %}" class="btn-accent btn-sm"><i class="fas fa-comments me-1"></i> Open</a>
+            {% elif group.is_full %}
+                <span style="font-size:0.82rem;color:var(--text-muted)">Full</span>
+            {% else %}
+                <form method="post" action="{% url 'studygroups:join' slug=course.slug group_id=group.pk %}">{% csrf_token %}
+                    <button type="submit" class="btn-outline-accent btn-sm">Join</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state" style="padding:3rem;text-align:center">
+        <i class="fas fa-users" style="font-size:2rem;color:var(--text-muted);display:block;margin-bottom:1rem"></i>
+        <p style="color:var(--text-muted)">No study groups yet. Create the first one!</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Create Modal -->
+<div id="createModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:1000">
+    <div class="card-custom" style="padding:2rem;width:90%;max-width:450px">
+        <h3 style="font-size:1.1rem;margin-bottom:1rem">Create Study Group</h3>
+        <form method="post" action="{% url 'studygroups:create' slug=course.slug %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Group Name</label>
+                <input type="text" name="name" class="form-control" required placeholder="e.g. Module 3 Study Buddies">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Description (optional)</label>
+                <textarea name="description" class="form-control" rows="2" placeholder="What will your group focus on?"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn-accent">Create</button>
+                <button type="button" onclick="document.getElementById('createModal').style.display='none'" class="btn-outline-accent">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

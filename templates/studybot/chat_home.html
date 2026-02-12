@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% block title %}AI Study Assistant - {{ course.title }}{% endblock %}
+{% block hide_footer %}{% endblock %}
+{% block content %}
+<div class="dashboard-wrapper">
+    <!-- Sidebar: Chat Sessions -->
+    <aside class="dashboard-sidebar" id="dashboardSidebar">
+        <div style="padding:0.8rem 1.5rem;border-bottom:1px solid var(--border)">
+            <a href="{% url 'courses:detail' slug=course.slug %}" style="font-size:0.82rem;color:var(--text-muted)"><i class="fas fa-arrow-left me-1"></i> Back to Course</a>
+            <h4 style="font-size:0.95rem;margin-top:0.5rem"><i class="fas fa-robot me-1" style="color:var(--accent)"></i> AI Study Assistant</h4>
+            <p style="font-size:0.78rem;color:var(--text-muted);margin:0">{{ course.title }}</p>
+        </div>
+        <div style="padding:0.8rem 1.2rem">
+            <form method="post" action="{% url 'studybot:new_session' slug=course.slug %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-accent w-100" style="font-size:0.85rem;padding:0.5rem"><i class="fas fa-plus me-1"></i> New Chat</button>
+            </form>
+        </div>
+        <div class="sidebar-section-title">Chat History</div>
+        {% for s in sessions %}
+        <a href="{% url 'studybot:session' slug=course.slug session_id=s.pk %}" class="sidebar-nav-item {% if session and s.pk == session.pk %}active{% endif %}" style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:0.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1"><i class="fas fa-comment-dots me-2" style="font-size:0.75rem;opacity:0.5"></i>{{ s.title }}</span>
+            <span style="font-size:0.7rem;color:var(--text-muted);flex-shrink:0;margin-left:0.5rem">{{ s.updated_at|timesince|truncatewords:2 }}</span>
+        </a>
+        {% empty %}
+        <div style="padding:1rem 1.5rem;font-size:0.82rem;color:var(--text-muted)">No chats yet. Start a new one!</div>
+        {% endfor %}
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="dashboard-content" style="padding:0;display:flex;flex-direction:column;height:calc(100vh - 64px)">
+        {% if session %}
+        <!-- Chat Header -->
+        <div style="padding:0.8rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+            <div>
+                <h3 style="font-size:1rem;margin:0">{{ session.title }}</h3>
+                <span style="font-size:0.75rem;color:var(--text-muted)">AI assistant trained on this course's content</span>
+            </div>
+            <form method="post" action="{% url 'studybot:delete_session' slug=course.slug session_id=session.pk %}" onsubmit="return confirm('Delete this chat?')">
+                {% csrf_token %}
+                <button type="submit" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.85rem" title="Delete chat"><i class="fas fa-trash"></i></button>
+            </form>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="chatMessages" style="flex:1;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1rem">
+            {% if not messages_list %}
+            <div id="welcomeMsg" style="text-align:center;padding:3rem 1rem;color:var(--text-muted)">
+                <div style="width:60px;height:60px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem"><i class="fas fa-robot"></i></div>
+                <h3 style="font-size:1.1rem;color:var(--text-primary);margin-bottom:0.5rem">Hi! I'm your AI study assistant</h3>
+                <p style="font-size:0.88rem;max-width:400px;margin:0 auto">I know all about <strong>{{ course.title }}</strong>. Ask me anything about the course material, concepts, or exercises!</p>
+                <div style="margin-top:1.5rem;display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center">
+                    <button onclick="askSuggestion(this)" class="suggestion-btn" style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:20px;padding:0.4rem 1rem;font-size:0.82rem;cursor:pointer;color:var(--text-secondary)">Explain the key concepts</button>
+                    <button onclick="askSuggestion(this)" class="suggestion-btn" style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:20px;padding:0.4rem 1rem;font-size:0.82rem;cursor:pointer;color:var(--text-secondary)">Help me prepare for the exercises</button>
+                    <button onclick="askSuggestion(this)" class="suggestion-btn" style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:20px;padding:0.4rem 1rem;font-size:0.82rem;cursor:pointer;color:var(--text-secondary)">Summarize Module 1</button>
+                </div>
+            </div>
+            {% endif %}
+
+            {% for msg in messages_list %}
+            <div class="ai-msg {% if msg.role == 'user' %}ai-msg-user{% else %}ai-msg-bot{% endif %}">
+                <div class="ai-msg-avatar">
+                    {% if msg.role == 'user' %}
+                    <span>{{ request.user.first_name|first|default:request.user.username|first }}</span>
+                    {% else %}
+                    <i class="fas fa-robot"></i>
+                    {% endif %}
+                </div>
+                <div class="ai-msg-content">
+                    <div class="ai-msg-name">{% if msg.role == 'user' %}You{% else %}AI Assistant{% endif %} <span style="font-size:0.7rem;color:var(--text-muted);font-weight:400;margin-left:0.5rem">{{ msg.created_at|date:"H:i" }}</span></div>
+                    <div class="ai-msg-text">{{ msg.content|linebreaksbr }}</div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Typing indicator (hidden by default) -->
+            <div id="typingIndicator" style="display:none" class="ai-msg ai-msg-bot">
+                <div class="ai-msg-avatar"><i class="fas fa-robot"></i></div>
+                <div class="ai-msg-content">
+                    <div class="ai-msg-name">AI Assistant</div>
+                    <div class="ai-msg-text"><span class="typing-dots"><span>.</span><span>.</span><span>.</span></span> Thinking...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);flex-shrink:0;background:var(--bg-primary)">
+            <form id="chatForm" onsubmit="return false" style="display:flex;gap:0.8rem;align-items:flex-end">
+                {% csrf_token %}
+                <textarea id="chatInput" name="message" placeholder="Ask about the course material..." rows="1" style="flex:1;padding:0.7rem 1rem;border:1px solid var(--border);border-radius:12px;resize:none;font-size:0.9rem;background:var(--bg-secondary);color:var(--text-primary);max-height:120px;font-family:inherit"></textarea>
+                <button type="submit" id="sendBtn" onclick="sendMessage()" style="width:42px;height:42px;border-radius:50%;background:var(--accent);color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-paper-plane"></i></button>
+            </form>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.5rem;text-align:center">AI can make mistakes. Verify important information with your course material.</div>
+        </div>
+
+        {% else %}
+        <!-- No session selected -->
+        <div style="flex:1;display:flex;align-items:center;justify-content:center">
+            <div style="text-align:center;color:var(--text-muted)">
+                <div style="font-size:3rem;margin-bottom:1rem"><i class="fas fa-robot"></i></div>
+                <h3 style="font-size:1.1rem;color:var(--text-primary)">AI Study Assistant</h3>
+                <p style="font-size:0.88rem">Select a chat or start a new one to begin studying</p>
+                <form method="post" action="{% url 'studybot:new_session' slug=course.slug %}" style="margin-top:1rem">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-accent"><i class="fas fa-plus me-1"></i> Start New Chat</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </main>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+
+<style>
+.ai-msg { display:flex; gap:0.8rem; max-width:85%; }
+.ai-msg-user { align-self:flex-end; flex-direction:row-reverse; }
+.ai-msg-bot { align-self:flex-start; }
+.ai-msg-avatar { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:0.8rem; font-weight:700; }
+.ai-msg-user .ai-msg-avatar { background:var(--accent); color:white; }
+.ai-msg-bot .ai-msg-avatar { background:var(--bg-tertiary); color:var(--accent); }
+.ai-msg-content { flex:1; }
+.ai-msg-name { font-size:0.78rem; font-weight:600; margin-bottom:0.2rem; }
+.ai-msg-user .ai-msg-name { text-align:right; }
+.ai-msg-text { padding:0.7rem 1rem; border-radius:12px; font-size:0.9rem; line-height:1.6; }
+.ai-msg-user .ai-msg-text { background:var(--accent); color:white; border-bottom-right-radius:4px; }
+.ai-msg-bot .ai-msg-text { background:var(--bg-secondary); border:1px solid var(--border); border-bottom-left-radius:4px; }
+.ai-msg-bot .ai-msg-text pre { background:var(--bg-tertiary); padding:0.8rem; border-radius:8px; overflow-x:auto; margin:0.5rem 0; font-size:0.82rem; }
+.ai-msg-bot .ai-msg-text code { background:var(--bg-tertiary); padding:1px 4px; border-radius:3px; font-size:0.85em; }
+.typing-dots span { animation:blink 1.4s infinite both; font-size:1.5rem; line-height:1; }
+.typing-dots span:nth-child(2) { animation-delay:0.2s; }
+.typing-dots span:nth-child(3) { animation-delay:0.4s; }
+@keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
+</style>
+
+{% block extra_js %}
+<script>
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
+const typingIndicator = document.getElementById('typingIndicator');
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+{% if session %}
+const sendUrl = "{% url 'studybot:send_message' slug=course.slug session_id=session.pk %}";
+{% endif %}
+
+if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+
+if (chatInput) {
+    chatInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+    chatInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+}
+
+function askSuggestion(btn) {
+    chatInput.value = btn.textContent;
+    sendMessage();
+}
+
+function sendMessage() {
+    const content = chatInput.value.trim();
+    if (!content) return;
+
+    // Remove welcome message
+    const welcome = document.getElementById('welcomeMsg');
+    if (welcome) welcome.remove();
+
+    // Add user message
+    appendMessage('user', content);
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+
+    // Show typing indicator
+    typingIndicator.style.display = 'flex';
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Disable input
+    chatInput.disabled = true;
+    sendBtn.disabled = true;
+
+    // Send to server
+    const formData = new FormData();
+    formData.append('message', content);
+    formData.append('csrfmiddlewaretoken', csrfToken);
+
+    fetch(sendUrl, {
+        method: 'POST',
+        body: formData,
+    })
+    .then(r => r.json())
+    .then(data => {
+        typingIndicator.style.display = 'none';
+        if (data.response) {
+            appendMessage('assistant', data.response);
+        }
+    })
+    .catch(err => {
+        typingIndicator.style.display = 'none';
+        appendMessage('assistant', 'Sorry, something went wrong. Please try again.');
+    })
+    .finally(() => {
+        chatInput.disabled = false;
+        sendBtn.disabled = false;
+        chatInput.focus();
+    });
+}
+
+function appendMessage(role, content) {
+    const isUser = role === 'user';
+    const div = document.createElement('div');
+    div.className = `ai-msg ${isUser ? 'ai-msg-user' : 'ai-msg-bot'}`;
+
+    const now = new Date();
+    const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+
+    // Format content - basic markdown-like rendering
+    let formatted = content
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+
+    div.innerHTML = `
+        <div class="ai-msg-avatar">
+            ${isUser ? '<span>{{ request.user.first_name|first|default:request.user.username|first }}</span>' : '<i class="fas fa-robot"></i>'}
+        </div>
+        <div class="ai-msg-content">
+            <div class="ai-msg-name">${isUser ? 'You' : 'AI Assistant'} <span style="font-size:0.7rem;color:var(--text-muted);font-weight:400;margin-left:0.5rem">${time}</span></div>
+            <div class="ai-msg-text">${formatted}</div>
+        </div>
+    `;
+    chatMessages.insertBefore(div, typingIndicator);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+</script>
+{% endblock %}
+{% endblock %}

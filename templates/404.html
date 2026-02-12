@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Page Not Found{% endblock %}
+{% block content %}
+<div style="min-height:60vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem">
+    <div>
+        <div style="font-size:6rem;font-weight:800;color:var(--accent);opacity:0.3;line-height:1">404</div>
+        <h2 style="font-size:1.5rem;margin:1rem 0 0.5rem">Page Not Found</h2>
+        <p style="color:var(--text-secondary);margin-bottom:1.5rem">The page you're looking for doesn't exist or has been moved.</p>
+        <div class="d-flex gap-2 justify-content-center">
+            <a href="/" class="btn-accent">Go Home</a>
+            <a href="{% url 'courses:list' %}" class="btn-outline-accent">Browse Courses</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Messages{% endblock %}
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="page-header" style="margin:0"><h1 class="page-title">Messages</h1><p class="page-subtitle">Direct conversations with mentors and students</p></div>
+    <a href="{% url 'messaging:compose' %}" class="btn-accent"><i class="fas fa-pen me-1"></i> New Message</a>
+</div>
+
+{% if conversations %}
+<div class="msg-list">
+{% for conv in conversations %}
+{% with other=conv.other_user %}
+<a href="{% url 'messaging:detail' pk=conv.pk %}" class="msg-list-item {% if conv.unread > 0 %}unread{% endif %}">
+    <div class="msg-avatar">
+        <span class="msg-avatar-letter">{{ other.first_name|first|default:other.username|first|default:"?" }}</span>
+        {% if other.role == 'mentor' %}<span class="msg-role-badge mentor">M</span>{% elif other.role == 'admin' %}<span class="msg-role-badge admin">A</span>{% endif %}
+    </div>
+    <div class="msg-body">
+        <div class="msg-header-row">
+            <span class="msg-sender">{{ other.get_full_name|default:other.username|default:"User" }}</span>
+            <span class="msg-time">{% if conv.last_message %}{{ conv.last_message.created_at|timesince }} ago{% endif %}</span>
+        </div>
+        {% if conv.subject %}<div class="msg-subject">{{ conv.subject }}</div>{% endif %}
+        <div class="msg-preview">{% if conv.last_message %}{{ conv.last_message.content|truncatewords:20 }}{% else %}No messages yet{% endif %}</div>
+    </div>
+    {% if conv.unread > 0 %}<span class="msg-unread-badge">{{ conv.unread }}</span>{% endif %}
+</a>
+{% endwith %}
+{% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-state-icon"><i class="fas fa-envelope-open"></i></div>
+    <p>No conversations yet.</p>
+    <a href="{% url 'messaging:compose' %}" class="btn-accent">Start a Conversation</a>
+</div>
+{% endif %}
+{% endblock %}

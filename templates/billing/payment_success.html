@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Payment Successful{% endblock %}
+{% block content %}
+<div class="container" style="max-width:600px;padding:3rem 1rem;text-align:center">
+    <div style="width:80px;height:80px;border-radius:50%;background:#d1fae5;color:#10b981;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:2rem">
+        <i class="fas fa-check"></i>
+    </div>
+    <h1 style="font-size:1.5rem;margin-bottom:0.5rem">Payment Successful!</h1>
+    <p style="color:var(--text-muted);margin-bottom:2rem">You're now enrolled in <strong>{{ course.title }}</strong></p>
+
+    <div class="card-custom" style="padding:1.5rem;text-align:left;margin-bottom:2rem">
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.8rem">
+            <span style="color:var(--text-muted);font-size:0.85rem">Transaction ID</span>
+            <span style="font-size:0.85rem;font-family:monospace">{{ payment.transaction_id|truncatechars:18 }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.8rem">
+            <span style="color:var(--text-muted);font-size:0.85rem">Amount</span>
+            <span style="font-weight:600">{{ payment.currency }} {{ payment.amount }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.8rem">
+            <span style="color:var(--text-muted);font-size:0.85rem">Method</span>
+            <span style="font-size:0.85rem">{{ payment.get_provider_display }}</span>
+        </div>
+        {% if payment.mpesa_receipt_number %}
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.8rem">
+            <span style="color:var(--text-muted);font-size:0.85rem">M-Pesa Receipt</span>
+            <span style="font-size:0.85rem;font-family:monospace">{{ payment.mpesa_receipt_number }}</span>
+        </div>
+        {% endif %}
+        <div style="display:flex;justify-content:space-between">
+            <span style="color:var(--text-muted);font-size:0.85rem">Date</span>
+            <span style="font-size:0.85rem">{{ payment.completed_at|date:"M d, Y H:i" }}</span>
+        </div>
+    </div>
+
+    <a href="{% url 'courses:detail' slug=course.slug %}" class="btn-accent" style="padding:0.7rem 2rem">
+        <i class="fas fa-play me-1"></i> Start Learning
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Announce — {{ course.title }}{% endblock %}
+{% block dashboard_content %}
+<div class="breadcrumb-custom"><a href="{% url 'dashboard:mentor_course_detail' slug=course.slug %}">{{ course.title }}</a> <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> Announcement</div>
+<div class="page-header"><h1 class="page-title"><i class="fas fa-bullhorn me-2" style="color:var(--accent)"></i>Send Announcement</h1><p class="page-subtitle">Notify all students enrolled in {{ course.title }}</p></div>
+<div class="row"><div class="col-lg-7"><div class="card-custom" style="padding:1.5rem">
+    <form method="post">{% csrf_token %}
+        <div class="mb-3"><label class="form-label">Title</label><input type="text" name="title" class="form-control" placeholder="e.g., New Module Available, Assignment Due Date..." required></div>
+        <div class="mb-3"><label class="form-label">Message</label><textarea name="message" class="form-control" rows="5" placeholder="Write your announcement here..." required></textarea></div>
+        <div class="alert-custom alert-info" style="font-size:0.82rem"><i class="fas fa-info-circle"></i> This will send a notification to all actively enrolled students in this course.</div>
+        <div class="d-flex gap-2 mt-3"><button type="submit" class="btn-accent"><i class="fas fa-paper-plane me-1"></i> Send Announcement</button><a href="{% url 'dashboard:mentor_course_detail' slug=course.slug %}" class="btn-outline-accent">Cancel</a></div>
+    </form>
+</div></div></div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block dashboard_content %}
+<div class="page-header"><h1 class="page-title">Admin Dashboard</h1><p class="page-subtitle">Platform overview and management</p></div>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon blue"><i class="fas fa-users"></i></div><div class="stat-card-value">{{ total_students }}</div><div class="stat-card-label">Students</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon gold"><i class="fas fa-hourglass-half"></i></div><div class="stat-card-value">{{ pending_students }}</div><div class="stat-card-label">Pending</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon green"><i class="fas fa-chalkboard-teacher"></i></div><div class="stat-card-value">{{ total_mentors }}</div><div class="stat-card-label">Mentors</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon purple"><i class="fas fa-book-open"></i></div><div class="stat-card-value">{{ total_courses }}</div><div class="stat-card-label">Courses</div></div></div>
+</div>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-4"><div class="stat-card"><div class="stat-card-icon blue"><i class="fas fa-graduation-cap"></i></div><div class="stat-card-value">{{ total_enrollments }}</div><div class="stat-card-label">Enrollments</div></div></div>
+    <div class="col-6 col-lg-4"><div class="stat-card"><div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-card-value">{{ published_courses }}</div><div class="stat-card-label">Published</div></div></div>
+    <div class="col-6 col-lg-4"><div class="stat-card"><div class="stat-card-icon gold"><i class="fas fa-certificate"></i></div><div class="stat-card-value">{{ total_certificates }}</div><div class="stat-card-label">Certificates</div></div></div>
+</div>
+<div class="d-flex flex-wrap gap-2 mb-4">
+    <a href="{% url 'dashboard:admin_students' %}?status=pending" class="btn-accent"><i class="fas fa-user-clock"></i> Review Pending Students ({{ pending_students }})</a>
+    <a href="{% url 'dashboard:admin_create_course' %}" class="btn-outline-accent"><i class="fas fa-plus"></i> New Course</a>
+    <a href="{% url 'dashboard:admin_create_mentor' %}" class="btn-outline-accent"><i class="fas fa-user-plus"></i> New Mentor</a>
+</div>
+<h3 style="font-size:1.1rem;margin-bottom:1rem">Recent Registrations</h3>
+<div class="card-custom" style="overflow:hidden">
+<table class="table-custom"><thead><tr><th>Student</th><th>Email</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead><tbody>
+{% for s in recent_students %}<tr>
+<td>{{ s.get_full_name|default:s.username }}</td><td>{{ s.email }}</td><td><span class="status-badge status-{{ s.status }}">{{ s.get_status_display }}</span></td><td>{{ s.date_joined|date:"M d, Y" }}</td>
+<td>{% if s.status == 'pending' %}<form method="post" action="{% url 'dashboard:admin_approve_student' pk=s.pk %}" style="display:inline">{% csrf_token %}<button type="submit" class="btn-accent btn-sm">Approve</button></form> <form method="post" action="{% url 'dashboard:admin_reject_student' pk=s.pk %}" style="display:inline">{% csrf_token %}<button type="submit" class="btn-outline-accent btn-sm" style="color:var(--danger);border-color:var(--danger)">Reject</button></form>{% endif %}</td>
+</tr>{% endfor %}</tbody></table></div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Manage Students{% endblock %}
+{% block dashboard_content %}
+<div class="page-header"><h1 class="page-title">Student Management</h1></div>
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <a href="{% url 'dashboard:admin_students' %}" class="filter-chip {% if not current_status %}active{% endif %}">All</a>
+    <a href="?status=pending" class="filter-chip {% if current_status == 'pending' %}active{% endif %}">Pending</a>
+    <a href="?status=approved" class="filter-chip {% if current_status == 'approved' %}active{% endif %}">Approved</a>
+    <a href="?status=rejected" class="filter-chip {% if current_status == 'rejected' %}active{% endif %}">Rejected</a>
+</div>
+<div class="card-custom" style="overflow:hidden">
+<table class="table-custom"><thead><tr><th>Name</th><th>Email</th><th>Verified</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead><tbody>
+{% for s in students %}<tr>
+<td>{{ s.get_full_name|default:s.username }}</td><td>{{ s.email }}</td>
+<td>{% if s.email_verified %}<i class="fas fa-check-circle" style="color:var(--success)"></i>{% else %}<i class="fas fa-times-circle" style="color:var(--text-muted)"></i>{% endif %}</td>
+<td><span class="status-badge status-{{ s.status }}">{{ s.get_status_display }}</span></td><td>{{ s.date_joined|date:"M d, Y" }}</td>
+<td class="d-flex gap-1">{% if s.status == 'pending' %}<form method="post" action="{% url 'dashboard:admin_approve_student' pk=s.pk %}">{% csrf_token %}<button type="submit" class="btn-accent btn-sm">Approve</button></form><form method="post" action="{% url 'dashboard:admin_reject_student' pk=s.pk %}">{% csrf_token %}<button type="submit" class="btn-outline-accent btn-sm" style="color:var(--danger);border-color:var(--danger)">Reject</button></form>{% elif s.status == 'approved' %}<form method="post" action="{% url 'dashboard:admin_reject_student' pk=s.pk %}">{% csrf_token %}<button type="submit" class="btn-outline-accent btn-sm" style="color:var(--danger);border-color:var(--danger)">Suspend</button></form>{% elif s.status == 'rejected' %}<form method="post" action="{% url 'dashboard:admin_approve_student' pk=s.pk %}">{% csrf_token %}<button type="submit" class="btn-accent btn-sm">Approve</button></form>{% endif %}</td>
+</tr>{% endfor %}</tbody></table></div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Login Cancelled{% endblock %}
+{% block hide_footer %}{% endblock %}
+{% block content %}
+<div class="auth-page"><div class="auth-card" style="text-align:center">
+    <div style="width:64px;height:64px;border-radius:50%;background:rgba(245,158,11,0.12);color:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1.2rem"><i class="fas fa-exclamation-triangle"></i></div>
+    <h2 style="font-size:1.4rem;margin-bottom:0.5rem">Login Cancelled</h2>
+    <p style="color:var(--text-secondary);font-size:0.88rem">You cancelled the social login process.</p>
+    <div class="d-flex gap-2 justify-content-center" style="margin-top:1.2rem">
+        <a href="{% url 'accounts:login' %}" class="btn-accent">Try Again</a>
+        <a href="{% url 'core:home' %}" class="btn-outline-accent">Go Home</a>
+    </div>
+</div></div>
+{% endblock %}

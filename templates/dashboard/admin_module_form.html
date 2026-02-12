@@ -1,0 +1,21 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}{{ action }}{% endblock %}
+{% block dashboard_content %}
+<div class="breadcrumb-custom"><a href="{% url 'dashboard:admin_edit_course' slug=course.slug %}">{{ course.title }}</a> <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> {{ action }}</div>
+<div class="page-header"><h1 class="page-title">{{ action }}</h1></div>
+<div class="row"><div class="col-lg-8"><div class="card-custom" style="padding:1.5rem">
+    <form method="post">{% csrf_token %}
+        <div class="row g-3">{% for field in form %}<div class="{% if field.name == 'content' or field.name == 'description' or field.name == 'resources' %}col-12{% else %}col-md-6{% endif %}"><label class="form-label">{{ field.label }}</label>{{ field }}{% if field.errors %}<div style="color:var(--danger);font-size:0.8rem">{{ field.errors.0 }}</div>{% endif %}</div>{% endfor %}</div>
+        <div class="mt-4 d-flex gap-2"><button type="submit" class="btn-accent">Save Module</button><a href="{% url 'dashboard:admin_edit_course' slug=course.slug %}" class="btn-outline-accent">Cancel</a></div>
+    </form>
+</div></div></div>
+{% if exercises %}
+<h3 style="font-size:1.1rem;margin:2rem 0 1rem">Exercises</h3>
+{% for ex in exercises %}
+<div class="card-custom" style="padding:0.8rem 1rem;margin-bottom:0.5rem"><div class="d-flex justify-content-between align-items-center">
+    <div><strong>{{ ex.order }}. {{ ex.title }}</strong> <span style="font-size:0.82rem;color:var(--text-muted)">({{ ex.get_exercise_type_display }}, {{ ex.points }}pts)</span></div>
+    <a href="{% url 'dashboard:admin_edit_exercise' slug=course.slug module_id=module.id exercise_id=ex.id %}" class="btn-outline-accent btn-sm">Edit</a>
+</div></div>
+{% endfor %}
+{% endif %}
+{% endblock %}

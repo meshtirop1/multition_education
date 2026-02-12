@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block hide_footer %}{% endblock %}
+{% block content %}
+<div class="auth-page"><div class="auth-card">
+    <div class="auth-logo"><h2>Welcome Back</h2><p>Log in to continue learning</p></div>
+    <div class="social-auth-btns"><a href="/social/google/login/" class="social-btn"><i class="fab fa-google"></i> Google</a><a href="/social/github/login/" class="social-btn"><i class="fab fa-github"></i> GitHub</a><a href="/social/linkedin_oauth2/login/" class="social-btn"><i class="fab fa-linkedin"></i> LinkedIn</a></div>
+    <div class="divider">or</div>
+    <form method="post">{% csrf_token %}
+        <div class="mb-3"><label class="form-label">Username</label>{{ form.username }}</div>
+        <div class="mb-3"><label class="form-label">Password</label>{{ form.password }}</div>
+        {% if form.errors %}<div class="alert-custom alert-danger" style="font-size:0.85rem">Invalid username or password.</div>{% endif %}
+        <button type="submit" class="btn-accent w-100" style="padding:0.7rem">Log In</button>
+    </form>
+    <p style="text-align:center;margin-top:1.2rem;font-size:0.88rem;color:var(--text-secondary)">No account? <a href="{% url 'accounts:register' %}">Sign up</a> | <a href="{% url 'accounts:password_reset' %}">Forgot password?</a></p>
+</div></div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Courses{% endblock %}
+{% block content %}
+<section class="section" style="padding-top:2rem">
+    <div class="container">
+        <div class="page-header" style="margin-bottom:1.5rem"><h1 class="page-title">AI Courses</h1><p class="page-subtitle">Explore our curated collection of artificial intelligence courses</p></div>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <a href="{% url 'courses:list' %}" class="filter-chip {% if not current_category %}active{% endif %}">All</a>
+            {% for val, label in categories %}<a href="?category={{ val }}{% if current_level %}&level={{ current_level }}{% endif %}" class="filter-chip {% if current_category == val %}active{% endif %}">{{ label }}</a>{% endfor %}
+        </div>
+        <div class="d-flex flex-wrap gap-2 mb-4">{% for val, label in levels %}<a href="?level={{ val }}{% if current_category %}&category={{ current_category }}{% endif %}" class="filter-chip {% if current_level == val %}active{% endif %}">{{ label }}</a>{% endfor %}</div>
+        <form class="mb-4" method="get">{% if current_category %}<input type="hidden" name="category" value="{{ current_category }}">{% endif %}<div class="d-flex gap-2" style="max-width:400px"><input type="text" name="search" class="form-control" placeholder="Search courses..." value="{{ search_query }}"><button type="submit" class="btn-accent btn-sm"><i class="fas fa-search"></i></button></div></form>
+        {% if courses %}
+        <div class="row g-4">{% for course in courses %}<div class="col-md-6 col-lg-3">
+            <a href="{% url 'courses:detail' slug=course.slug %}" class="course-card" style="text-decoration:none">
+                <div class="course-card-img">{% if course.thumbnail %}<img src="{{ course.thumbnail.url }}">{% else %}<i class="fas fa-microchip"></i>{% endif %}<span class="course-level-badge level-{{ course.level }}">{{ course.get_level_display }}</span></div>
+                <div class="course-card-body"><div class="course-category">{{ course.get_category_display }}</div><h3 class="course-card-title">{{ course.title }}</h3><p class="course-card-desc">{{ course.short_description|default:course.description|truncatewords:18 }}</p></div>
+                <div class="course-card-footer"><span class="course-card-meta"><i class="fas fa-layer-group"></i> {{ course.total_modules }} modules</span><span class="course-card-meta"><i class="fas fa-users"></i> {{ course.enrolled_count }}</span><span class="course-card-meta" style="margin-left:auto;font-weight:700;{% if course.is_free %}color:#10b981{% else %}color:var(--accent){% endif %}">{% if course.is_free %}Free{% else %}${{ course.price }}{% endif %}</span></div>
+            </a></div>{% endfor %}</div>
+        {% else %}<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-search"></i></div><p>No courses found.</p></div>{% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Checkout - {{ course.title }}{% endblock %}
+{% block content %}
+<div class="container" style="max-width:600px;padding:2rem 1rem">
+    <div class="breadcrumb-custom">
+        <a href="{% url 'courses:detail' slug=course.slug %}">{{ course.title }}</a>
+        <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> Checkout
+    </div>
+
+    <div class="card-custom" style="padding:2rem">
+        <div style="text-align:center;margin-bottom:2rem">
+            <div style="width:60px;height:60px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h2 style="font-size:1.3rem;margin-bottom:0.3rem">{{ course.title }}</h2>
+            <p style="color:var(--text-muted);font-size:0.88rem">{{ course.get_level_display }} &bull; {{ course.duration_hours }} hours &bull; {{ course.total_modules }} modules</p>
+        </div>
+
+        <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:1.2rem;margin-bottom:1.5rem">
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.8rem">
+                <span style="color:var(--text-secondary)">Course</span>
+                <span>{{ course.title }}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.8rem">
+                <span style="color:var(--text-secondary)">Mentor</span>
+                <span>{{ course.mentor.get_full_name|default:course.mentor.username }}</span>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:0.8rem;display:flex;justify-content:space-between;font-weight:700;font-size:1.1rem">
+                <span>Total</span>
+                <span style="color:var(--accent)">${{ course.price }}</span>
+            </div>
+        </div>
+
+        <!-- Stripe Payment -->
+        <button id="stripeBtn" onclick="payWithStripe()" class="btn-accent w-100" style="padding:0.8rem;font-size:1rem;margin-bottom:0.8rem">
+            <i class="fab fa-cc-stripe me-2"></i> Pay with Card — ${{ course.price }}
+        </button>
+
+        <div id="paymentError" style="display:none;padding:0.7rem;background:#fef2f2;color:#991b1b;border-radius:8px;font-size:0.85rem;margin-bottom:1rem;text-align:center"></div>
+
+        <div style="text-align:center;margin-top:1rem">
+            <a href="{% url 'courses:detail' slug=course.slug %}" style="font-size:0.85rem;color:var(--text-muted)"><i class="fas fa-arrow-left me-1"></i> Back to course</a>
+        </div>
+
+        <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);text-align:center">
+            <p style="font-size:0.78rem;color:var(--text-muted)"><i class="fas fa-lock me-1"></i> Payments are securely processed by Stripe. We never store your card details.</p>
+        </div>
+    </div>
+</div>
+{% block extra_js %}
+<script>
+const csrfToken = '{{ csrf_token }}';
+
+function payWithStripe() {
+    const btn = document.getElementById('stripeBtn');
+    const errDiv = document.getElementById('paymentError');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Redirecting to Stripe...';
+    errDiv.style.display = 'none';
+
+    fetch("{% url 'payments:create_session' slug=course.slug %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.url) {
+            window.location.href = data.url;
+        } else {
+            errDiv.textContent = data.error || 'Something went wrong';
+            errDiv.style.display = 'block';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fab fa-cc-stripe me-2"></i> Pay with Card — ${{ course.price }}';
+        }
+    })
+    .catch(() => {
+        errDiv.textContent = 'Network error. Please try again.';
+        errDiv.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fab fa-cc-stripe me-2"></i> Pay with Card — ${{ course.price }}';
+    });
+}
+</script>
+{% endblock %}
+{% endblock %}

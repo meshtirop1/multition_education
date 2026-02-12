@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+{% block hide_footer %}{% endblock %}
+{% block content %}
+<div class="auth-page"><div class="auth-card">
+    <div class="auth-logo"><h2>Create Account</h2><p>Join MultiTion Education</p></div>
+    <div class="social-auth-btns"><a href="/social/google/login/" class="social-btn"><i class="fab fa-google"></i> Google</a><a href="/social/github/login/" class="social-btn"><i class="fab fa-github"></i> GitHub</a><a href="/social/linkedin_oauth2/login/" class="social-btn"><i class="fab fa-linkedin"></i> LinkedIn</a></div>
+    <div class="divider">or register with email</div>
+    <form method="post">{% csrf_token %}
+        {% for field in form %}{% if field.name != 'cookie_consent' %}<div class="mb-3"><label class="form-label">{{ field.label }}</label>{{ field }}{% if field.errors %}<div style="color:var(--danger);font-size:0.8rem;margin-top:0.3rem">{{ field.errors.0 }}</div>{% endif %}</div>{% endif %}{% endfor %}
+        <div class="mb-3"><div class="form-check">{{ form.cookie_consent }}<label class="form-check-label" style="font-size:0.85rem;color:var(--text-secondary)">I accept cookies and privacy policy</label></div>{% if form.cookie_consent.errors %}<div style="color:var(--danger);font-size:0.8rem">{{ form.cookie_consent.errors.0 }}</div>{% endif %}</div>
+        <button type="submit" class="btn-accent w-100" style="padding:0.7rem">Create Account</button>
+    </form>
+    <p style="text-align:center;margin-top:1.2rem;font-size:0.88rem;color:var(--text-secondary)">Already have an account? <a href="{% url 'accounts:login' %}">Log in</a></p>
+</div></div>
+{% endblock %}

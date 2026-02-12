@@ -1,0 +1,12 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Manage Courses{% endblock %}
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-3"><div class="page-header" style="margin:0"><h1 class="page-title">Courses</h1></div><a href="{% url 'dashboard:admin_create_course' %}" class="btn-accent"><i class="fas fa-plus"></i> New Course</a></div>
+<div class="card-custom" style="overflow:hidden">
+<table class="table-custom"><thead><tr><th>Title</th><th>Category</th><th>Mentor</th><th>Modules</th><th>Students</th><th>Published</th><th>Actions</th></tr></thead><tbody>
+{% for c in courses %}<tr>
+<td>{{ c.title }}</td><td>{{ c.get_category_display }}</td><td>{{ c.mentor.get_full_name|default:"-" }}</td><td>{{ c.total_modules }}</td><td>{{ c.enrolled_count }}</td>
+<td>{% if c.is_published %}<i class="fas fa-check-circle" style="color:var(--success)"></i>{% else %}<i class="fas fa-times-circle" style="color:var(--text-muted)"></i>{% endif %}</td>
+<td><a href="{% url 'dashboard:admin_edit_course' slug=c.slug %}" class="btn-outline-accent btn-sm">Edit</a></td>
+</tr>{% endfor %}</tbody></table></div>
+{% endblock %}

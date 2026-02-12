@@ -1,0 +1,12 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Create Mentor{% endblock %}
+{% block dashboard_content %}
+<div class="breadcrumb-custom"><a href="{% url 'dashboard:admin_mentors' %}">Mentors</a> <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> Create</div>
+<div class="page-header"><h1 class="page-title">Create New Mentor</h1></div>
+<div class="row"><div class="col-lg-7"><div class="card-custom" style="padding:1.5rem">
+    <form method="post">{% csrf_token %}
+        <div class="row g-3">{% for field in form %}<div class="{% if field.name == 'bio' %}col-12{% else %}col-md-6{% endif %}"><label class="form-label">{{ field.label }}</label>{{ field }}{% if field.errors %}<div style="color:var(--danger);font-size:0.8rem">{{ field.errors.0 }}</div>{% endif %}</div>{% endfor %}</div>
+        <div class="mt-4"><button type="submit" class="btn-accent">Create Mentor</button></div>
+    </form>
+</div></div></div>
+{% endblock %}

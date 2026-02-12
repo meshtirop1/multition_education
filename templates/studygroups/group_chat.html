@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}{{ group.name }}{% endblock %}
+{% block hide_footer %}{% endblock %}
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header">
+        <a href="{% url 'studygroups:list' slug=course.slug %}" class="chat-back"><i class="fas fa-arrow-left"></i></a>
+        <div class="msg-avatar" style="width:38px;height:38px;font-size:0.85rem;background:var(--accent-light);color:var(--accent)">
+            <span><i class="fas fa-users"></i></span>
+        </div>
+        <div class="chat-header-info">
+            <div class="chat-header-name">{{ group.name }}</div>
+            <div class="chat-header-meta">{{ members.count }} members &bull; {{ course.title }}</div>
+        </div>
+        <form method="post" action="{% url 'studygroups:leave' slug=course.slug group_id=group.pk %}" style="margin-left:auto" onsubmit="return confirm('Leave this group?')">
+            {% csrf_token %}
+            <button type="submit" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.82rem"><i class="fas fa-sign-out-alt me-1"></i>Leave</button>
+        </form>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+        {% for msg in chat_messages %}
+        <div class="chat-bubble {% if msg.sender == request.user %}mine{% else %}theirs{% endif %}">
+            {% if msg.sender != request.user %}<div style="font-size:0.72rem;font-weight:600;color:var(--accent);margin-bottom:2px">{{ msg.sender.get_full_name|default:msg.sender.username }}</div>{% endif %}
+            <div class="chat-bubble-content">{{ msg.content|linebreaksbr }}</div>
+            <div class="chat-bubble-time">{{ msg.created_at|date:"M d, H:i" }}</div>
+        </div>
+        {% empty %}
+        <div class="empty-state" style="padding:4rem"><p>Start the conversation!</p></div>
+        {% endfor %}
+    </div>
+
+    <div class="chat-input-area">
+        <form id="chatForm" onsubmit="return false" class="chat-form">
+            {% csrf_token %}
+            <div class="chat-input-row">
+                <textarea name="content" class="chat-input" placeholder="Type a message..." rows="1" id="chatInput" required></textarea>
+                <button type="submit" class="chat-send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+
+chatInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+function sendMessage() {
+    const content = chatInput.value.trim();
+    if (!content) return;
+    const formData = new FormData();
+    formData.append('content', content);
+    formData.append('csrfmiddlewaretoken', csrfToken);
+
+    fetch("{% url 'studygroups:send' slug=course.slug group_id=group.pk %}", {
+        method: 'POST', body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            appendMsg(data.message);
+            lastId = data.message.id;
+            chatInput.value = '';
+        }
+    }).catch(() => {});
+}
+
+function appendMsg(m) {
+    const empty = chatMessages.querySelector('.empty-state');
+    if (empty) empty.remove();
+    const div = document.createElement('div');
+    div.className = `chat-bubble ${m.is_mine ? 'mine' : 'theirs'}`;
+    let html = '';
+    if (!m.is_mine) html += `<div style="font-size:0.72rem;font-weight:600;color:var(--accent);margin-bottom:2px">${m.sender}</div>`;
+    html += `<div class="chat-bubble-content">${m.content.replace(/\n/g,'<br>')}</div>`;
+    html += `<div class="chat-bubble-time">${m.time}</div>`;
+    div.innerHTML = html;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+let lastId = {{ chat_messages.last.id|default:"0" }};
+setInterval(() => {
+    fetch("{% url 'studygroups:poll' slug=course.slug group_id=group.pk %}?after=" + lastId)
+    .then(r => r.json())
+    .then(data => {
+        if (data.messages && data.messages.length > 0) {
+            data.messages.forEach(m => {
+                if (m.id > lastId && !m.is_mine) appendMsg(m);
+                if (m.id > lastId) lastId = m.id;
+            });
+        }
+    }).catch(() => {});
+}, 2000);
+</script>
+{% endblock %}
+{% endblock %}

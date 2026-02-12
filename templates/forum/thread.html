@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% block title %}{{ thread.title }} — Forum{% endblock %}
+{% block content %}
+<section class="section" style="padding-top:1.5rem">
+<div class="container" style="max-width:900px">
+    <div class="breadcrumb-custom"><a href="{% url 'forum:home' %}">Forum</a> <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> <a href="{% url 'forum:category' slug=thread.category.slug %}">{{ thread.category.name }}</a> <i class="fas fa-chevron-right" style="font-size:0.6rem"></i> Thread</div>
+
+    <!-- Thread Header -->
+    <div class="forum-thread-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <div style="flex:1">
+                <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                    {% if thread.is_pinned %}<span class="forum-pin-badge"><i class="fas fa-thumbtack"></i> Pinned</span>{% endif %}
+                    {% if thread.is_solved %}<span class="forum-solved-badge"><i class="fas fa-check-circle"></i> Solved</span>{% endif %}
+                    {% if thread.is_locked %}<span style="color:var(--text-muted);font-size:0.85rem"><i class="fas fa-lock me-1"></i>Locked</span>{% endif %}
+                </div>
+                <h1 style="font-size:1.5rem;margin-bottom:0.5rem">{{ thread.title }}</h1>
+                <div style="font-size:0.85rem;color:var(--text-muted)">
+                    Posted by <strong style="color:var(--text-primary)">{{ thread.author.get_full_name|default:thread.author.username }}</strong>
+                    {% if thread.author.role == 'mentor' %}<span class="forum-author-badge mentor">Mentor</span>{% endif %}
+                    &bull; {{ thread.created_at|timesince }} ago &bull; <i class="fas fa-eye"></i> {{ thread.views_count }} views
+                </div>
+            </div>
+            {% if user.is_authenticated %}
+            <div class="d-flex gap-1">
+                <button class="btn-outline-accent btn-sm" onclick="toggleBookmark({{ thread.id }})" id="bookmarkBtn"><i class="fas fa-bookmark {% if is_bookmarked %}{% else %}far fa-bookmark{% endif %}" id="bookmarkIcon"></i></button>
+                {% if user.role == 'mentor' or user.role == 'admin' or user.is_superuser %}
+                <button class="btn-outline-accent btn-sm" onclick="togglePin({{ thread.id }})"><i class="fas fa-thumbtack"></i></button>
+                <button class="btn-outline-accent btn-sm" onclick="toggleLock({{ thread.id }})"><i class="fas fa-lock"></i></button>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% if thread.tag_list %}<div class="forum-tags mt-2">{% for tag in thread.tag_list %}<span class="forum-tag">{{ tag }}</span>{% endfor %}</div>{% endif %}
+    </div>
+
+    <!-- Original Post -->
+    <div class="forum-post original">
+        <div class="forum-post-content">{{ thread.content|linebreaksbr }}</div>
+    </div>
+
+    <!-- Replies -->
+    <div class="forum-replies-header">
+        <h3 style="font-size:1.05rem;margin:0">{{ posts.count }} {{ posts.count|pluralize:"Reply,Replies" }}</h3>
+    </div>
+
+    {% for post in posts %}
+    <div class="forum-post {% if post.is_solution %}solution{% endif %}" id="post-{{ post.id }}">
+        <div class="forum-post-sidebar">
+            <div class="forum-vote-controls">
+                <button class="forum-vote-btn {% if user_votes|default_if_none:'' %}{% for k,v in user_votes.items %}{% if k == post.id and v == 1 %}active{% endif %}{% endfor %}{% endif %}" onclick="votePost({{ post.id }}, 1)" title="Upvote"><i class="fas fa-chevron-up"></i></button>
+                <span class="forum-vote-score" id="score-{{ post.id }}">{{ post.upvotes|default:0 }}</span>
+                <button class="forum-vote-btn down {% if user_votes|default_if_none:'' %}{% for k,v in user_votes.items %}{% if k == post.id and v == -1 %}active{% endif %}{% endfor %}{% endif %}" onclick="votePost({{ post.id }}, -1)" title="Downvote"><i class="fas fa-chevron-down"></i></button>
+            </div>
+        </div>
+        <div class="forum-post-main">
+            <div class="forum-post-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="msg-avatar" style="width:30px;height:30px;font-size:0.7rem"><span class="msg-avatar-letter">{{ post.author.first_name|first|default:post.author.username|first }}</span></div>
+                    <strong style="font-size:0.88rem">{{ post.author.get_full_name|default:post.author.username }}</strong>
+                    {% if post.author.role == 'mentor' %}<span class="forum-author-badge mentor">Mentor</span>{% endif %}
+                    {% if post.author.role == 'admin' %}<span class="forum-author-badge admin">Admin</span>{% endif %}
+                </div>
+                <span style="font-size:0.78rem;color:var(--text-muted)">{{ post.created_at|timesince }} ago</span>
+            </div>
+            {% if post.parent %}<div class="forum-reply-to"><i class="fas fa-reply"></i> replying to {{ post.parent.author.get_full_name|default:post.parent.author.username }}</div>{% endif %}
+            <div class="forum-post-content">{{ post.content|linebreaksbr }}</div>
+            {% if post.is_solution %}<div class="forum-solution-badge"><i class="fas fa-check-circle"></i> Accepted Solution</div>{% endif %}
+            <div class="forum-post-actions">
+                {% if user.is_authenticated and not thread.is_locked %}<button class="forum-action-btn" onclick="replyTo({{ post.id }}, '{{ post.author.get_full_name|default:post.author.username|escapejs }}')"><i class="fas fa-reply"></i> Reply</button>{% endif %}
+                {% if user.is_authenticated and user == thread.author or user.role == 'mentor' or user.role == 'admin' %}<button class="forum-action-btn" onclick="markSolution({{ post.id }})"><i class="fas fa-check"></i> {% if post.is_solution %}Unmark{% else %}Mark as{% endif %} Solution</button>{% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state" style="padding:2rem"><p>No replies yet. Be the first to respond!</p></div>
+    {% endfor %}
+
+    <!-- Reply Form -->
+    {% if user.is_authenticated and not thread.is_locked %}
+    <div class="forum-reply-form" id="replyForm">
+        <h4 style="font-size:1rem;margin-bottom:1rem">Post a Reply</h4>
+        <div id="replyToIndicator" style="display:none;padding:0.5rem 0.8rem;background:var(--bg-secondary);border-radius:var(--radius-sm);margin-bottom:0.8rem;font-size:0.85rem"><i class="fas fa-reply me-1"></i> Replying to <strong id="replyToName"></strong> <button onclick="cancelReply()" style="float:right;background:none;border:none;color:var(--text-muted);cursor:pointer"><i class="fas fa-times"></i></button></div>
+        <form method="post">{% csrf_token %}
+            <input type="hidden" name="parent_id" id="parentId" value="">
+            {{ form.content }}
+            <div class="mt-2"><button type="submit" class="btn-accent"><i class="fas fa-paper-plane me-1"></i> Post Reply</button></div>
+        </form>
+    </div>
+    {% elif thread.is_locked %}
+    <div class="alert-custom alert-warning" style="margin-top:1rem"><i class="fas fa-lock me-1"></i> This thread is locked. No new replies can be posted.</div>
+    {% else %}
+    <div class="alert-custom alert-info" style="margin-top:1rem"><i class="fas fa-sign-in-alt me-1"></i> <a href="{% url 'accounts:login' %}">Log in</a> to participate in this discussion.</div>
+    {% endif %}
+</div>
+</section>
+
+{% block extra_js %}
+<script>
+function getCsrf() { let v=null; document.cookie.split(';').forEach(c=>{c=c.trim();if(c.startsWith('csrftoken='))v=c.substring(10)});return v; }
+
+function votePost(postId, value) {
+    fetch(`/forum/post/${postId}/vote/`, {method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':getCsrf()},body:`value=${value}`})
+    .then(r=>r.json()).then(d=>{document.getElementById(`score-${postId}`).textContent=d.upvotes;}).catch(()=>{});
+}
+
+function toggleBookmark(threadId) {
+    fetch(`/forum/thread/${threadId}/bookmark/`,{method:'POST',headers:{'X-CSRFToken':getCsrf()}})
+    .then(r=>r.json()).then(d=>{
+        const icon=document.getElementById('bookmarkIcon');
+        icon.className=d.bookmarked?'fas fa-bookmark':'far fa-bookmark';
+    }).catch(()=>{});
+}
+
+function togglePin(threadId) {
+    fetch(`/forum/thread/${threadId}/pin/`,{method:'POST',headers:{'X-CSRFToken':getCsrf()}})
+    .then(r=>r.json()).then(()=>location.reload()).catch(()=>{});
+}
+
+function toggleLock(threadId) {
+    fetch(`/forum/thread/${threadId}/lock/`,{method:'POST',headers:{'X-CSRFToken':getCsrf()}})
+    .then(r=>r.json()).then(()=>location.reload()).catch(()=>{});
+}
+
+function markSolution(postId) {
+    fetch(`/forum/post/${postId}/solution/`,{method:'POST',headers:{'X-CSRFToken':getCsrf()}})
+    .then(r=>r.json()).then(()=>location.reload()).catch(()=>{});
+}
+
+function replyTo(postId, name) {
+    document.getElementById('parentId').value = postId;
+    document.getElementById('replyToIndicator').style.display = 'block';
+    document.getElementById('replyToName').textContent = name;
+    document.getElementById('replyForm').scrollIntoView({behavior:'smooth'});
+    document.querySelector('#replyForm textarea').focus();
+}
+
+function cancelReply() {
+    document.getElementById('parentId').value = '';
+    document.getElementById('replyToIndicator').style.display = 'none';
+}
+</script>
+{% endblock %}
+{% endblock %}

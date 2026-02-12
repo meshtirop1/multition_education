@@ -1,0 +1,42 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Mentor Dashboard{% endblock %}
+{% block dashboard_content %}
+<div class="page-header"><h1 class="page-title">Mentor Dashboard</h1><p class="page-subtitle">Manage your courses and student progress</p></div>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon blue"><i class="fas fa-book-open"></i></div><div class="stat-card-value">{{ courses.count }}</div><div class="stat-card-label">My Courses</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon green"><i class="fas fa-users"></i></div><div class="stat-card-value">{{ total_students }}</div><div class="stat-card-label">Students</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon gold"><i class="fas fa-clipboard-check"></i></div><div class="stat-card-value">{{ pending_submissions.count }}</div><div class="stat-card-label">To Grade</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card-icon purple"><i class="fas fa-user-check"></i></div><div class="stat-card-value">{{ pending_approvals.count }}</div><div class="stat-card-label">To Approve</div></div></div>
+</div>
+
+{% if pending_approvals %}
+<h3 style="font-size:1.15rem;margin-bottom:1rem"><i class="fas fa-user-check me-2" style="color:var(--accent)"></i>Pending Completion Approvals</h3>
+<div class="card-custom" style="overflow:hidden;margin-bottom:2rem">
+<table class="table-custom"><thead><tr><th>Student</th><th>Course</th><th>Completed</th><th>Action</th></tr></thead><tbody>
+{% for e in pending_approvals %}
+<tr><td>{{ e.student.get_full_name|default:e.student.username }}</td><td>{{ e.course.title }}</td><td>{{ e.completed_at|date:"M d, Y" }}</td>
+<td><form method="post" action="{% url 'dashboard:approve_completion' enrollment_id=e.id %}" style="display:inline">{% csrf_token %}<button type="submit" class="btn-accent btn-sm"><i class="fas fa-check"></i> Approve & Issue Certificate</button></form></td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endif %}
+
+{% if pending_submissions %}
+<h3 style="font-size:1.15rem;margin-bottom:1rem"><i class="fas fa-clipboard-list me-2" style="color:var(--accent)"></i>Submissions to Grade</h3>
+<div class="card-custom" style="overflow:hidden;margin-bottom:2rem">
+<table class="table-custom"><thead><tr><th>Student</th><th>Exercise</th><th>Course</th><th>Action</th></tr></thead><tbody>
+{% for sub in pending_submissions %}
+<tr><td>{{ sub.student.username }}</td><td>{{ sub.exercise.title }}</td><td>{{ sub.exercise.module.course.title }}</td>
+<td><a href="{% url 'dashboard:grade_submission' submission_id=sub.id %}" class="btn-outline-accent btn-sm">Grade</a></td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endif %}
+
+<h3 style="font-size:1.15rem;margin-bottom:1rem">My Courses</h3>
+<div class="row g-3">{% for course in courses %}
+<div class="col-md-6"><div class="card-custom" style="padding:1.2rem">
+    <h4 style="font-size:1rem;margin-bottom:0.5rem">{{ course.title }}</h4>
+    <p style="font-size:0.82rem;color:var(--text-muted)">{{ course.enrolled_count }} students &bull; {{ course.total_modules }} modules &bull; {{ course.total_exercises }} exercises</p>
+    <a href="{% url 'dashboard:mentor_course_detail' slug=course.slug %}" class="btn-outline-accent btn-sm">Manage</a>
+</div></div>
+{% empty %}<div class="empty-state"><p>No courses assigned yet.</p></div>{% endfor %}</div>
+{% endblock %}

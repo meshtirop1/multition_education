@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block hide_footer %}{% endblock %}
+{% block content %}
+<div class="dashboard-wrapper">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="dashboard-sidebar" id="dashboardSidebar">
+        <div style="padding:0 1.5rem 1rem;border-bottom:1px solid var(--border);margin-bottom:0.5rem">
+            <div style="font-weight:600;color:var(--text-primary);font-size:0.95rem"><i class="fas fa-user-circle me-1" style="color:var(--accent)"></i> {{ user.get_full_name|default:user.username }}</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.15rem"><span class="status-badge status-{{ user.status }}">{{ user.get_status_display }}</span></div>
+        </div>
+        {% if user.role == 'student' %}
+        <div class="sidebar-section-title">Learning</div>
+        <a href="{% url 'dashboard:student_dashboard' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}"><i class="fas fa-th-large"></i> Overview</a>
+        <a href="{% url 'courses:list' %}" class="sidebar-nav-item"><i class="fas fa-book"></i> Browse Courses</a>
+        <a href="{% url 'certificates:list' %}" class="sidebar-nav-item"><i class="fas fa-certificate"></i> Certificates</a>
+        <div class="sidebar-section-title">Account</div>
+        <a href="{% url 'accounts:profile' %}" class="sidebar-nav-item"><i class="fas fa-user-edit"></i> Profile</a>
+        <a href="{% url 'messaging:inbox' %}" class="sidebar-nav-item"><i class="fas fa-envelope"></i> Messages {% if unread_messages_count > 0 %}<span class="status-badge status-pending ms-auto">{{ unread_messages_count }}</span>{% endif %}</a>
+        <a href="{% url 'notifications:list' %}" class="sidebar-nav-item"><i class="fas fa-bell"></i> Notifications {% if unread_notifications_count > 0 %}<span class="status-badge status-pending ms-auto">{{ unread_notifications_count }}</span>{% endif %}</a>
+        <div class="sidebar-section-title">Community</div>
+        <a href="{% url 'forum:home' %}" class="sidebar-nav-item"><i class="fas fa-comments"></i> Forum</a>
+        <a href="{% url 'forum:my_threads' %}" class="sidebar-nav-item"><i class="fas fa-bookmark"></i> My Threads</a>
+        {% elif user.role == 'mentor' %}
+        <div class="sidebar-section-title">Mentoring</div>
+        <a href="{% url 'dashboard:mentor_dashboard' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'mentor_dashboard' %}active{% endif %}"><i class="fas fa-th-large"></i> Overview</a>
+        <a href="{% url 'messaging:inbox' %}" class="sidebar-nav-item"><i class="fas fa-envelope"></i> Messages {% if unread_messages_count > 0 %}<span class="status-badge status-pending ms-auto">{{ unread_messages_count }}</span>{% endif %}</a>
+        <a href="{% url 'notifications:list' %}" class="sidebar-nav-item"><i class="fas fa-bell"></i> Notifications {% if unread_notifications_count > 0 %}<span class="status-badge status-pending ms-auto">{{ unread_notifications_count }}</span>{% endif %}</a>
+        <div class="sidebar-section-title">Community</div>
+        <a href="{% url 'forum:home' %}" class="sidebar-nav-item"><i class="fas fa-comments"></i> Forum</a>
+        <div class="sidebar-section-title">Account</div>
+        <a href="{% url 'accounts:profile' %}" class="sidebar-nav-item"><i class="fas fa-user-edit"></i> Profile</a>
+        {% elif user.role == 'admin' or user.is_superuser %}
+        <div class="sidebar-section-title">Administration</div>
+        <a href="{% url 'dashboard:admin_dashboard' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}"><i class="fas fa-th-large"></i> Overview</a>
+        <a href="{% url 'dashboard:admin_students' %}" class="sidebar-nav-item {% if 'students' in request.path %}active{% endif %}"><i class="fas fa-users"></i> Students</a>
+        <a href="{% url 'dashboard:admin_mentors' %}" class="sidebar-nav-item {% if 'mentors' in request.path %}active{% endif %}"><i class="fas fa-chalkboard-teacher"></i> Mentors</a>
+        <a href="{% url 'dashboard:admin_courses' %}" class="sidebar-nav-item {% if 'admin' in request.path and 'courses' in request.path %}active{% endif %}"><i class="fas fa-book-open"></i> Courses</a>
+            <a href="{% url 'dashboard:admin_payments' %}" class="sidebar-nav-item {% if 'payments' in request.path %}active{% endif %}"><i class="fas fa-credit-card"></i> Payments</a>
+        <div class="sidebar-section-title">System</div>
+        <a href="{% url 'notifications:list' %}" class="sidebar-nav-item"><i class="fas fa-bell"></i> Notifications</a>
+        <a href="{% url 'accounts:profile' %}" class="sidebar-nav-item"><i class="fas fa-user-edit"></i> Profile</a>
+        <a href="/admin/" class="sidebar-nav-item" target="_blank"><i class="fas fa-cog"></i> Django Admin</a>
+        {% endif %}
+    </aside>
+    <main class="dashboard-content">{% block dashboard_content %}{% endblock %}</main>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+{% endblock %}

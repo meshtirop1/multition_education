@@ -1,0 +1,15 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}My Certificates{% endblock %}
+{% block dashboard_content %}
+<div class="page-header"><h1 class="page-title">My Certificates</h1></div>
+{% for cert in certificates %}
+<div class="cert-card mb-3">
+    <div class="cert-icon"><i class="fas fa-award"></i></div>
+    <div style="flex:1"><h5 style="font-size:1rem;margin:0">{{ cert.course.title }}</h5><p style="font-size:0.82rem;color:var(--text-muted);margin:0.2rem 0 0">Issued {{ cert.issued_at|date:"F d, Y" }} &bull; ID: {{ cert.certificate_id|truncatechars:16 }}</p></div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'certificates:download' certificate_id=cert.certificate_id %}" class="btn-accent btn-sm"><i class="fas fa-download"></i> Download PDF</a>
+        <a href="{% url 'certificates:verify' certificate_id=cert.certificate_id %}" class="btn-outline-accent btn-sm" target="_blank"><i class="fas fa-check-circle"></i> Verify</a>
+    </div>
+</div>
+{% empty %}<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-certificate"></i></div><p>No certificates yet. Complete a course and get mentor approval to earn one!</p><a href="{% url 'courses:list' %}" class="btn-accent">Browse Courses</a></div>{% endfor %}
+{% endblock %}

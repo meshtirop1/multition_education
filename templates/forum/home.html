@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Community Forum{% endblock %}
+{% block content %}
+<section class="forum-hero">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="page-title" style="font-size:1.8rem;margin-bottom:0.3rem">Community Forum</h1>
+                <p style="color:var(--text-secondary);margin:0">{{ total_threads }} discussions &bull; {{ total_posts }} replies &bull; Ask questions, share knowledge, grow together</p>
+            </div>
+            <div class="d-flex gap-2">
+                <form action="{% url 'forum:search' %}" class="d-flex gap-2"><input type="text" name="q" class="form-control" style="width:200px" placeholder="Search discussions..."><button class="btn-outline-accent btn-sm"><i class="fas fa-search"></i></button></form>
+                {% if user.is_authenticated %}<a href="{% url 'forum:create_thread' %}" class="btn-accent"><i class="fas fa-plus me-1"></i> New Discussion</a>{% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" style="padding-top:1.5rem">
+<div class="container">
+<div class="row g-4">
+<div class="col-lg-8">
+    <h3 style="font-size:1.1rem;margin-bottom:1rem">Categories</h3>
+    {% for cat in categories %}
+    <a href="{% url 'forum:category' slug=cat.slug %}" class="forum-category-card">
+        <div class="forum-cat-icon" style="background:{{ cat.color }}20;color:{{ cat.color }}"><i class="{{ cat.icon }}"></i></div>
+        <div class="forum-cat-body">
+            <h4 class="forum-cat-name">{{ cat.name }}</h4>
+            <p class="forum-cat-desc">{{ cat.description|truncatewords:15 }}</p>
+        </div>
+        <div class="forum-cat-stats">
+            <span>{{ cat.num_threads }} threads</span>
+            <span>{{ cat.num_posts }} replies</span>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+<div class="col-lg-4">
+    <div class="card-custom" style="padding:1.2rem;margin-bottom:1.5rem">
+        <h4 style="font-size:1rem;margin-bottom:1rem"><i class="fas fa-fire me-2" style="color:#ef4444"></i>Popular Discussions</h4>
+        {% for t in popular_threads %}
+        <a href="{% url 'forum:thread' slug=t.slug %}" class="forum-side-thread">
+            <div class="forum-side-title">{{ t.title|truncatewords:10 }}</div>
+            <div class="forum-side-meta">{{ t.num_replies }} replies &bull; {{ t.views_count }} views</div>
+        </a>
+        {% empty %}<p style="color:var(--text-muted);font-size:0.85rem">No discussions yet.</p>{% endfor %}
+    </div>
+
+    <div class="card-custom" style="padding:1.2rem">
+        <h4 style="font-size:1rem;margin-bottom:1rem"><i class="fas fa-clock me-2" style="color:var(--accent)"></i>Recent Discussions</h4>
+        {% for t in recent_threads %}
+        <a href="{% url 'forum:thread' slug=t.slug %}" class="forum-side-thread">
+            <div class="forum-side-title">{{ t.title|truncatewords:10 }}</div>
+            <div class="forum-side-meta">by {{ t.author.get_full_name|default:t.author.username }} &bull; {{ t.created_at|timesince }} ago</div>
+        </a>
+        {% empty %}<p style="color:var(--text-muted);font-size:0.85rem">No discussions yet. <a href="{% url 'forum:create_thread' %}">Start one!</a></p>{% endfor %}
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="card-custom" style="padding:1.2rem;margin-top:1.5rem">
+        <h4 style="font-size:1rem;margin-bottom:0.8rem"><i class="fas fa-bookmark me-2" style="color:var(--accent)"></i>Quick Links</h4>
+        <a href="{% url 'forum:my_threads' %}" class="d-block" style="font-size:0.88rem;margin-bottom:0.3rem"><i class="fas fa-user me-1"></i> My Threads & Bookmarks</a>
+        <a href="{% url 'forum:create_thread' %}" class="d-block" style="font-size:0.88rem"><i class="fas fa-plus me-1"></i> Start New Discussion</a>
+    </div>
+    {% endif %}
+</div>
+</div>
+</div>
+</section>
+{% endblock %}
