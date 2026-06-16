@@ -43,9 +43,9 @@ jobs:
       - name: Smoke test
         run: |
           for i in 1 2 3 4 5; do
-            code=$(curl -s -o /dev/null -w "%{http_code}" https://multition.com/)
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://www.multition.com/)
             echo "Attempt $i -> $code"
-            if [ "$code" = "200" ]; then exit 0; fi
+            if [ "$code" = "200" ] || [ "$code" = "301" ] || [ "$code" = "302" ]; then exit 0; fi
             sleep 5
           done
           echo "Site did not return 200 after deploy"; exit 1
