@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /accounts/
+Disallow: /billing/
+Disallow: /api/
+Disallow: /private/
+
+Sitemap: https://multition.com/sitemap.xml

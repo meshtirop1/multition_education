@@ -3,11 +3,32 @@
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="/static/images/favicon-192.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}MultiTion Education{% endblock %} | AI Learning Platform</title>
+
+    <title>{% block title %}MultiTion Education — Learn AI, Prompt Engineering &amp; Future Skills{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}MultiTion Education is a mentor-led AI learning platform. Master Machine Learning, Prompt Engineering, NLP, and more — with verified certificates and an AI study assistant.{% endblock %}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://multition.com{% block canonical_path %}{% endblock %}">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MultiTion Education">
+    <meta property="og:title" content="{% block og_title %}MultiTion Education — Learn AI &amp; Future Skills{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Mentor-led courses in AI, Machine Learning, and Prompt Engineering. Earn verified certificates and get help from an AI study assistant.{% endblock %}">
+    <meta property="og:url" content="https://multition.com{% block og_url %}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}https://multition.com{% static 'images/logo.svg' %}{% endblock %}">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}MultiTion Education{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Mentor-led AI courses with verified certificates. Learn ML, NLP, Prompt Engineering and more.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}https://multition.com{% static 'images/logo.svg' %}{% endblock %}">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32.png' %}">
+    <link rel="apple-touch-icon" sizes="192x192" href="{% static 'images/favicon-192.png' %}">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
