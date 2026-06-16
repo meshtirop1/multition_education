@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" width="800" height="200">
+  <defs>
+    <linearGradient id="darkMainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f2b5c"/>
+      <stop offset="40%" stop-color="#1a56db"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="darkAccentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c8a84e"/>
+      <stop offset="100%" stop-color="#e8d48a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon (same as light version) -->
+  <g transform="translate(30, 15)">
+    <path d="M85 8 L148 42 L148 110 L85 144 L22 110 L22 42 Z" fill="url(#darkMainGrad)"/>
+    <path d="M85 18 L139 48 L139 104 L85 134 L31 104 L31 48 Z" fill="none" stroke="url(#darkAccentGrad)" stroke-width="1.5" opacity="0.4"/>
+    <circle cx="52" cy="58" r="6" fill="url(#darkAccentGrad)" opacity="0.9"/>
+    <circle cx="52" cy="80" r="6" fill="url(#darkAccentGrad)" opacity="0.9"/>
+    <circle cx="52" cy="102" r="6" fill="url(#darkAccentGrad)" opacity="0.9"/>
+    <circle cx="85" cy="48" r="7" fill="#ffffff" opacity="0.95"/>
+    <circle cx="85" cy="72" r="7" fill="#ffffff" opacity="0.95"/>
+    <circle cx="85" cy="96" r="7" fill="#ffffff" opacity="0.95"/>
+    <circle cx="85" cy="118" r="6" fill="#ffffff" opacity="0.7"/>
+    <circle cx="118" cy="64" r="6.5" fill="url(#darkAccentGrad)" opacity="0.9"/>
+    <circle cx="118" cy="90" r="6.5" fill="url(#darkAccentGrad)" opacity="0.9"/>
+    <line x1="58" y1="58" x2="78" y2="48" stroke="#c8a84e" stroke-width="1.2" opacity="0.5"/>
+    <line x1="58" y1="58" x2="78" y2="72" stroke="#c8a84e" stroke-width="1.2" opacity="0.4"/>
+    <line x1="58" y1="80" x2="78" y2="72" stroke="#c8a84e" stroke-width="1.2" opacity="0.5"/>
+    <line x1="58" y1="80" x2="78" y2="96" stroke="#c8a84e" stroke-width="1.2" opacity="0.4"/>
+    <line x1="58" y1="80" x2="78" y2="48" stroke="#c8a84e" stroke-width="1" opacity="0.25"/>
+    <line x1="58" y1="102" x2="78" y2="96" stroke="#c8a84e" stroke-width="1.2" opacity="0.5"/>
+    <line x1="58" y1="102" x2="78" y2="118" stroke="#c8a84e" stroke-width="1.2" opacity="0.4"/>
+    <line x1="58" y1="102" x2="78" y2="72" stroke="#c8a84e" stroke-width="1" opacity="0.25"/>
+    <line x1="92" y1="48" x2="112" y2="64" stroke="#ffffff" stroke-width="1.2" opacity="0.5"/>
+    <line x1="92" y1="72" x2="112" y2="64" stroke="#ffffff" stroke-width="1.2" opacity="0.5"/>
+    <line x1="92" y1="72" x2="112" y2="90" stroke="#ffffff" stroke-width="1.2" opacity="0.5"/>
+    <line x1="92" y1="96" x2="112" y2="90" stroke="#ffffff" stroke-width="1.2" opacity="0.5"/>
+    <line x1="92" y1="96" x2="112" y2="64" stroke="#ffffff" stroke-width="1" opacity="0.25"/>
+    <line x1="92" y1="48" x2="112" y2="90" stroke="#ffffff" stroke-width="1" opacity="0.25"/>
+    <line x1="92" y1="118" x2="112" y2="90" stroke="#ffffff" stroke-width="1.2" opacity="0.4"/>
+    <g transform="translate(85, 22)" opacity="0.95">
+      <polygon points="0,-12 18,-4 0,4 -18,-4" fill="url(#darkAccentGrad)"/>
+      <line x1="0" y1="4" x2="0" y2="12" stroke="#c8a84e" stroke-width="1.5"/>
+      <circle cx="0" cy="13" r="2" fill="#c8a84e"/>
+      <line x1="18" y1="-4" x2="18" y2="6" stroke="#c8a84e" stroke-width="1"/>
+      <path d="M-10,1 Q0,8 10,1" fill="none" stroke="#c8a84e" stroke-width="1" opacity="0.6"/>
+    </g>
+  </g>
+
+  <!-- Wordmark — light text for dark backgrounds -->
+  <g transform="translate(210, 60)">
+    <text x="0" y="50" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" 
+          font-size="58" font-weight="800" letter-spacing="-1" fill="#e8edf5">
+      Multi
+    </text>
+    <text x="173" y="50" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" 
+          font-size="58" font-weight="800" letter-spacing="-1" fill="url(#darkAccentGrad)">
+      Tion
+    </text>
+    <rect x="175" y="58" width="80" height="3.5" rx="2" fill="url(#darkAccentGrad)"/>
+    <text x="2" y="80" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" 
+          font-size="18" font-weight="600" letter-spacing="10" fill="#c8a84e">
+      EDUCATION
+    </text>
+  </g>
+</svg>

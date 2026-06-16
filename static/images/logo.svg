@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" width="800" height="200">
+  <defs>
+    <!-- Gold gradient for icon -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c8a84e"/>
+      <stop offset="50%" stop-color="#e0c36a"/>
+      <stop offset="100%" stop-color="#c8a84e"/>
+    </linearGradient>
+    <!-- Blue gradient for icon -->
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a56db"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1a56db"/>
+    </linearGradient>
+    <!-- Combined gradient -->
+    <linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f2b5c"/>
+      <stop offset="40%" stop-color="#1a56db"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c8a84e"/>
+      <stop offset="100%" stop-color="#e8d48a"/>
+    </linearGradient>
+    <!-- Glow filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <!-- Shadow -->
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f2b5c" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- === ICON: Neural network brain + graduation cap === -->
+  <g transform="translate(30, 15)" filter="url(#shadow)">
+    <!-- Hexagonal shield background -->
+    <path d="M85 8 L148 42 L148 110 L85 144 L22 110 L22 42 Z" 
+          fill="url(#mainGrad)" rx="8"/>
+    
+    <!-- Inner hexagon border -->
+    <path d="M85 18 L139 48 L139 104 L85 134 L31 104 L31 48 Z" 
+          fill="none" stroke="url(#accentGrad)" stroke-width="1.5" opacity="0.4"/>
+
+    <!-- Neural network nodes — layer 1 (input) -->
+    <circle cx="52" cy="58" r="6" fill="url(#accentGrad)" opacity="0.9"/>
+    <circle cx="52" cy="80" r="6" fill="url(#accentGrad)" opacity="0.9"/>
+    <circle cx="52" cy="102" r="6" fill="url(#accentGrad)" opacity="0.9"/>
+
+    <!-- Neural network nodes — layer 2 (hidden) -->
+    <circle cx="85" cy="48" r="7" fill="#ffffff" opacity="0.95"/>
+    <circle cx="85" cy="72" r="7" fill="#ffffff" opacity="0.95"/>
+    <circle cx="85" cy="96" r="7" fill="#ffffff" opacity="0.95"/>
+    <circle cx="85" cy="118" r="6" fill="#ffffff" opacity="0.7"/>
+
+    <!-- Neural network nodes — layer 3 (output) -->
+    <circle cx="118" cy="64" r="6.5" fill="url(#accentGrad)" opacity="0.9"/>
+    <circle cx="118" cy="90" r="6.5" fill="url(#accentGrad)" opacity="0.9"/>
+
+    <!-- Connections layer 1→2 -->
+    <line x1="58" y1="58" x2="78" y2="48" stroke="#c8a84e" stroke-width="1.2" opacity="0.5"/>
+    <line x1="58" y1="58" x2="78" y2="72" stroke="#c8a84e" stroke-width="1.2" opacity="0.4"/>
+    <line x1="58" y1="80" x2="78" y2="72" stroke="#c8a84e" stroke-width="1.2" opacity="0.5"/>
+    <line x1="58" y1="80" x2="78" y2="96" stroke="#c8a84e" stroke-width="1.2" opacity="0.4"/>
+    <line x1="58" y1="80" x2="78" y2="48" stroke="#c8a84e" stroke-width="1" opacity="0.25"/>
+    <line x1="58" y1="102" x2="78" y2="96" stroke="#c8a84e" stroke-width="1.2" opacity="0.5"/>
+    <line x1="58" y1="102" x2="78" y2="118" stroke="#c8a84e" stroke-width="1.2" opacity="0.4"/>
+    <line x1="58" y1="102" x2="78" y2="72" stroke="#c8a84e" stroke-width="1" opacity="0.25"/>
+    <line x1="58" y1="58" x2="78" y2="96" stroke="#c8a84e" stroke-width="1" opacity="0.2"/>
+
+    <!-- Connections layer 2→3 -->
+    <line x1="92" y1="48" x2="112" y2="64" stroke="#ffffff" stroke-width="1.2" opacity="0.5"/>
+    <line x1="92" y1="72" x2="112" y2="64" stroke="#ffffff" stroke-width="1.2" opacity="0.5"/>
+    <line x1="92" y1="72" x2="112" y2="90" stroke="#ffffff" stroke-width="1.2" opacity="0.5"/>
+    <line x1="92" y1="96" x2="112" y2="90" stroke="#ffffff" stroke-width="1.2" opacity="0.5"/>
+    <line x1="92" y1="96" x2="112" y2="64" stroke="#ffffff" stroke-width="1" opacity="0.25"/>
+    <line x1="92" y1="48" x2="112" y2="90" stroke="#ffffff" stroke-width="1" opacity="0.25"/>
+    <line x1="92" y1="118" x2="112" y2="90" stroke="#ffffff" stroke-width="1.2" opacity="0.4"/>
+
+    <!-- Graduation cap on top -->
+    <g transform="translate(85, 22)" opacity="0.95">
+      <polygon points="0,-12 18,-4 0,4 -18,-4" fill="url(#accentGrad)"/>
+      <line x1="0" y1="4" x2="0" y2="12" stroke="#c8a84e" stroke-width="1.5"/>
+      <circle cx="0" cy="13" r="2" fill="#c8a84e"/>
+      <line x1="18" y1="-4" x2="18" y2="6" stroke="#c8a84e" stroke-width="1"/>
+      <path d="M-10,1 Q0,8 10,1" fill="none" stroke="#c8a84e" stroke-width="1" opacity="0.6"/>
+    </g>
+
+    <!-- Pulse rings on center node -->
+    <circle cx="85" cy="72" r="12" fill="none" stroke="#c8a84e" stroke-width="0.8" opacity="0.3">
+      <animate attributeName="r" values="12;18;12" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0;0.3" dur="3s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- === WORDMARK === -->
+  <g transform="translate(210, 60)">
+    <!-- "Multi" -->
+    <text x="0" y="50" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" 
+          font-size="58" font-weight="800" letter-spacing="-1" fill="#0f2b5c">
+      Multi
+    </text>
+    <!-- "Tion" in accent color -->
+    <text x="173" y="50" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" 
+          font-size="58" font-weight="800" letter-spacing="-1" fill="url(#mainGrad)">
+      Tion
+    </text>
+    
+    <!-- Gold accent bar under "Tion" -->
+    <rect x="175" y="58" width="80" height="3.5" rx="2" fill="url(#accentGrad)"/>
+    
+    <!-- "EDUCATION" subtitle -->
+    <text x="2" y="80" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" 
+          font-size="18" font-weight="600" letter-spacing="10" fill="#c8a84e">
+      EDUCATION
+    </text>
+  </g>
+
+  <!-- Decorative dots -->
+  <circle cx="730" cy="55" r="3" fill="#1a56db" opacity="0.2"/>
+  <circle cx="745" cy="45" r="2" fill="#c8a84e" opacity="0.3"/>
+  <circle cx="755" cy="60" r="2.5" fill="#1a56db" opacity="0.15"/>
+</svg>
