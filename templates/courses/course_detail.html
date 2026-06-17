@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
-{% block title %}{{ course.title }}{% endblock %}
+{% block title %}{{ course.title }} — MultiTion Education{% endblock %}
+{% block meta_description %}{{ course.short_description|default:course.description|truncatechars:160 }}{% endblock %}
+{% block canonical_path %}/courses/{{ course.slug }}/{% endblock %}
+{% block og_title %}{{ course.title }} — MultiTion Education{% endblock %}
+{% block og_description %}{{ course.short_description|default:course.description|truncatechars:200 }}{% endblock %}
+{% block og_url %}/courses/{{ course.slug }}/{% endblock %}
 {% block content %}
 <section style="background:var(--bg-secondary);padding:2.5rem 0">
     <div class="container">
